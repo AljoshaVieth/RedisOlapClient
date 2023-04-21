@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/RedisOlapClient.iml" filepath="$PROJECT_DIR$/.idea/modules/RedisOlapClient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/RedisOlapClient-build.iml" filepath="$PROJECT_DIR$/.idea/modules/RedisOlapClient-build.iml" />
     </modules>
   </component>
 </project>

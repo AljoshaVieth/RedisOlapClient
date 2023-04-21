@@ -14,6 +14,69 @@ where lo_orderdate = d_datekey
   and lo_quantity < 25;
 ```
 
+### Redis
+#### Structure of fields:
+In redis, everything is stored as a so-called hash (a key-value store).
+The key to the hash consists of the database name and the value of the primary kex field(s) in SQL.
+
+##### lineorder:
+In the lineorder table, there are two primary keys: "lo_orderkey" and "lo_linenumber".
+So the structure of the key in redis is: ```lineorder:lo_orderkey:lo_linenumber```
+e.g. ```lineorder:32:2```
+
+| key              | value    |
+|------------------|----------|
+| lo_orderkey      | 32       |
+| lo_linenumber    | 2        |
+| lo_custkey       | 5954     |
+| lo_partkey       | 197921   |
+| lo_suppkey       | 566      |
+| lo_orderdate     | 19960404 |
+| lo_orderpriority | 3-MEDIUM |
+| lo_shippriority  | 0        |
+| lo_quantity      | 32       |
+| lo_extendedprice | 6460544  |
+| lo_ordtotalprice | 11999065 |
+| lo_discount      | 2        |
+| lo_revenue       | 6331333  |
+| lo_supplycost    | 121135   |
+| lo_tax           | 0        |
+| lo_commitdate    | 19960626 |
+| lo_shipmod       | AIR      |
+
+##### date:
+The date table only has one primary key, the "d_datekey".
+so it can look like this: ```date:19960111```
+
+
+| key               | value             |
+|-------------------|-------------------|
+| d_datekey         | 19960111          |
+| d_date            | January 11, 1996  |
+| d_dayofweek       | Friday            |
+| d_month           | January           |
+| d_year            | 1996              |
+| d_yearmonthnum    | 199601            |
+| d_yearmonth       | Jan1996           |
+| d_daynuminweek    | 6                 |
+| d_daynuminmonth   | 11                |
+| d_daynuminyear    | 11                |
+| d_monthnuminyear  | 1                 |
+| d_weeknuminyear   | 2                 |
+| d_sellingseason   | Winter            |
+| d_lastdayinweekfl | 0                 |
+| d_lastdayinmonthfl| 1                 |
+| d_holidayfl       | 0                 |
+| d_weekdayfl       | 1                 |
+
+#### Approach:
+1. Get all keys of the date hashes where the field d_year has the value 1993
+2. Get all keys of the lineorder hashes where the field lo_orderdate has a value that matches the list of keys from 1.
+3. Of all the keys that where selected in 2., get all where the lo_discount is between 1 and 3
+4. Of all the keys that where selected in 3., get all where lo_quantity < 25
+
+
+
 
 
 ## Q1.2
