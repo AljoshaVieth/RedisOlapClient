@@ -49,25 +49,25 @@ The date table only has one primary key, the "d_datekey".
 so it can look like this: ```date:19960111```
 
 
-| key               | value             |
-|-------------------|-------------------|
-| d_datekey         | 19960111          |
-| d_date            | January 11, 1996  |
-| d_dayofweek       | Friday            |
-| d_month           | January           |
-| d_year            | 1996              |
-| d_yearmonthnum    | 199601            |
-| d_yearmonth       | Jan1996           |
-| d_daynuminweek    | 6                 |
-| d_daynuminmonth   | 11                |
-| d_daynuminyear    | 11                |
-| d_monthnuminyear  | 1                 |
-| d_weeknuminyear   | 2                 |
-| d_sellingseason   | Winter            |
-| d_lastdayinweekfl | 0                 |
-| d_lastdayinmonthfl| 1                 |
-| d_holidayfl       | 0                 |
-| d_weekdayfl       | 1                 |
+| key                | value            |
+|--------------------|------------------|
+| d_datekey          | 19960111         |
+| d_date             | January 11, 1996 |
+| d_dayofweek        | Friday           |
+| d_month            | January          |
+| d_year             | 1996             |
+| d_yearmonthnum     | 199601           |
+| d_yearmonth        | Jan1996          |
+| d_daynuminweek     | 6                |
+| d_daynuminmonth    | 11               |
+| d_daynuminyear     | 11               |
+| d_monthnuminyear   | 1                |
+| d_weeknuminyear    | 2                |
+| d_sellingseason    | Winter           |
+| d_lastdayinweekfl  | 0                |
+| d_lastdayinmonthfl | 1                |
+| d_holidayfl        | 0                |
+| d_weekdayfl        | 1                |
 
 #### Approach:
 1. Get all keys of the date hashes where the field d_year has the value 1993
