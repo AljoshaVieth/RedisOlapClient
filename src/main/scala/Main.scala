@@ -25,14 +25,11 @@ object Main {
 		jedisPooled.sendCommand(SearchCommand.CONFIG, "SET", "MAXSEARCHRESULTS", "-1")
 
 		println("Running Q1.1 ...")
-		val startTimeQ1_1 = System.nanoTime
-		runQ1_1()
-		println("\nAll data extracted in " + (System.nanoTime() - startTimeQ1_1) + " nanoseconds")
-
+		println("Executed in: " + calculateExecutionTime(runQ1_1) + "ns")
 		println("Running Q1.2 ...")
-		val startTimeQ1_2 = System.nanoTime
-		runQ1_2()
-		println("\nAll data extracted in " + (System.nanoTime() - startTimeQ1_2) + " nanoseconds")
+		println("Executed in: " + calculateExecutionTime(runQ1_2) + "ns")
+
+
 		jedisPipeline.close()
 		jedisPooled.close()
 	}
@@ -137,5 +134,12 @@ object Main {
 		val revenue = relevantLineOrderDocuments.map(doc => doc.getString("lo_extendedprice").toLong * doc.getString("lo_discount").toLong).sum // The usage of Long is crucial, since the result > Integer MAX
 
 		println("Revenue: " + revenue)
+	}
+
+
+	def calculateExecutionTime(f: () => Unit): Long = {
+		val startTime = System.nanoTime
+		f()
+		System.nanoTime() - startTime
 	}
 }

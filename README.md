@@ -113,7 +113,13 @@ and d_year = 1994
 and lo_discount between 5 and 7
 and lo_quantity between 26 and 35;
 ```
+### Approach:
+See Q1.1 and Q1.2
 
+To work, the index must contain d_weeknuminyear.
+``` TERMINAl
+ FT.ALTER date-index SCHEMA ADD d_weeknuminyear NUMERIC 
+```
 ## Q2.1
 ### Original
 ```sql
