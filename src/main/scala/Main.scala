@@ -87,7 +87,7 @@ object Main {
 		println("Found " + lineorderDocuments.length + " matching lineorder documents.")
 
 		val relevantLineOrderDocuments = lineorderDocuments.filter(doc => relevantDates.contains(doc.getString("lo_orderdate")))
-		val revenue = relevantLineOrderDocuments.map(doc => doc.getString("lo_extendedprice").toLong * doc.getString("lo_discount").toLong).sum
+		val revenue = relevantLineOrderDocuments.map(doc => doc.getString("lo_extendedprice").toLong * doc.getString("lo_discount").toLong).sum // The usage of Long is crucial, since the result > Integer MAX
 
 		println("Revenue: " + revenue)
 

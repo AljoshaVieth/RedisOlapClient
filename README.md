@@ -71,9 +71,9 @@ so it can look like this: ```date:19960111```
 
 #### Approach:
 1. Get all keys of the date hashes where the field d_year has the value 1993
-2. Get all keys of the lineorder hashes where the field lo_orderdate has a value that matches the list of keys from 1.
-3. Of all the keys that where selected in 2., get all where the lo_discount is between 1 and 3
-4. Of all the keys that where selected in 3., get all where lo_quantity < 25
+2. Get all documents of the lineorder hashes where the lo_discount is between 1 and 3 and the lo_quantity < 25
+3. Filter all lineoder documents based on if their lo_orderdate is present in the keys of 1.
+4. Sum up all (lo_extendedprice*lo_discount) of the lineorder documents
 
 
 
