@@ -22,11 +22,17 @@ object Main {
 
 
 	def main(args: Array[String]): Unit = {
-		val startTime = System.nanoTime
-		println("Running query data...")
 		jedisPooled.sendCommand(SearchCommand.CONFIG, "SET", "MAXSEARCHRESULTS", "-1")
+
+		println("Running Q1.1 ...")
+		val startTimeQ1_1 = System.nanoTime
 		runQ1_1()
-		println("\nAll data extracted in " + (System.nanoTime() - startTime) + " nanoseconds")
+		println("\nAll data extracted in " + (System.nanoTime() - startTimeQ1_1) + " nanoseconds")
+
+		println("Running Q1.2 ...")
+		val startTimeQ1_2 = System.nanoTime
+		runQ1_2()
+		println("\nAll data extracted in " + (System.nanoTime() - startTimeQ1_2) + " nanoseconds")
 		jedisPipeline.close()
 		jedisPooled.close()
 	}
@@ -67,10 +73,7 @@ object Main {
 		val dateSearchResult = jedisPooled.ftSearch("date-index", getAllMatchingDatesQuery)
 		val relevantDates: List[String] = dateSearchResult.getDocuments.asScala.toList.map(_.getString("d_datekey"))
 
-
-		// Get the list of documents matching the query
-		val dateDocuments: List[Document] = dateSearchResult.getDocuments.asScala.toList // Converting Java types to Scala
-		println("Found " + dateDocuments.length + " matching documents.")
+		//println("Found " + relevantDates.length + " relevant dates.")
 
 
 		// Second, get all keys and all values of the fields lo_orderdate, lo_extendedprice and lo_discount from the lineorder hashes
@@ -84,13 +87,55 @@ object Main {
 		val lineorderSearchResults = jedisPooled.ftSearch("lineorder-index", getAllLineorderDatesQuery)
 		val lineorderDocuments: List[Document] = lineorderSearchResults.getDocuments.asScala.toList
 
-		println("Found " + lineorderDocuments.length + " matching lineorder documents.")
+		//println("Found " + lineorderDocuments.length + " matching lineorder documents.")
 
 		val relevantLineOrderDocuments = lineorderDocuments.filter(doc => relevantDates.contains(doc.getString("lo_orderdate")))
 		val revenue = relevantLineOrderDocuments.map(doc => doc.getString("lo_extendedprice").toLong * doc.getString("lo_discount").toLong).sum // The usage of Long is crucial, since the result > Integer MAX
 
 		println("Revenue: " + revenue)
+	}
+
+	/**
+	 * Original Q1.2 Query in SQL
+	 *
+	 * select sum(lo_extendedprice*lo_discount) as revenue
+	 * from lineorder, date
+	 * where lo_orderdate = d_datekey
+	 * and d_yearmonthnum = 199401
+	 * and lo_discount between 4 and 6
+	 * and lo_quantity between 26 and 35;
+	 */
+	private def runQ1_2(): Unit = {
+		// First, get all keys of hashes where d_yearmonthnum has the value 199401
+		val getAllMatchingDatesQuery = new Query()
+			.addFilter(new Query.NumericFilter("d_yearmonthnum", 199401, 199401)) // Filter using the yeas
+			.limit(0, Integer.MAX_VALUE) // Get as many results as possible with the Integer max
+			.returnFields("d_datekey") // Only return the d_datekey to save space
+			.timeout(Integer.MAX_VALUE) // The timeout parameter is very important. If the timout is reached, it takes the ones it already has, which can result in different results running the same query
+
+		// Search for documents matching the query in the "date-index" index
+		val dateSearchResult = jedisPooled.ftSearch("date-index", getAllMatchingDatesQuery)
+		val relevantDates: List[String] = dateSearchResult.getDocuments.asScala.toList.map(_.getString("d_datekey"))
+
+		//println("Found " + relevantDates.length + " relevant dates.")
 
 
+		// Second, get all keys and all values of the fields lo_orderdate, lo_extendedprice and lo_discount from the lineorder hashes
+		val getAllLineorderDatesQuery = new Query()
+			.addFilter(new Query.NumericFilter("lo_discount", 4, 6))
+			.addFilter(new Query.NumericFilter("lo_quantity", 26, 35))
+			.limit(0, Integer.MAX_VALUE)
+			.returnFields("lo_orderdate", "lo_extendedprice", "lo_discount")
+			.timeout(Integer.MAX_VALUE) // The timeout parameter is very important. If the timout is reached, it takes the ones it already has, which can result in different results running the same query
+
+		val lineorderSearchResults = jedisPooled.ftSearch("lineorder-index", getAllLineorderDatesQuery)
+		val lineorderDocuments: List[Document] = lineorderSearchResults.getDocuments.asScala.toList
+
+		//println("Found " + lineorderDocuments.length + " matching lineorder documents.")
+
+		val relevantLineOrderDocuments = lineorderDocuments.filter(doc => relevantDates.contains(doc.getString("lo_orderdate")))
+		val revenue = relevantLineOrderDocuments.map(doc => doc.getString("lo_extendedprice").toLong * doc.getString("lo_discount").toLong).sum // The usage of Long is crucial, since the result > Integer MAX
+
+		println("Revenue: " + revenue)
 	}
 }

@@ -90,6 +90,18 @@ and lo_discount between 4 and 6
 and lo_quantity between 26 and 35;
 ```
 
+### Approach:
+Very similar to Q1.1:
+
+1. Get all keys of the date hashes where the field d_yearmonthnum has the value 199401
+2. Get all documents of the lineorder hashes where the lo_discount is between 4 and 6 and the lo_quantity between 26 and 35
+3. Filter all lineoder documents based on if their lo_orderdate is present in the keys of 1.
+4. Sum up all (lo_extendedprice*lo_discount) of the lineorder documents
+
+To work, the index must contain d_yearmonthnum.
+``` TERMINAl
+FT.ALTER date-index SCHEMA ADD d_yearmonthnum NUMERIC
+```
 ## Q1.3
 ### Original
 ```sql
