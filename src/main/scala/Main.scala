@@ -14,10 +14,8 @@ import scala.jdk.CollectionConverters.*
 
 object Main {
 
-	private val jedisURI = new URI("redis://localhost:6379"); // replace with your Redis server URI
-
+	private val jedisURI = new URI("redis://localhost:6379")
 	private val jedisPooled: JedisPooled = new JedisPooled(jedisURI, Integer.MAX_VALUE)
-
 	private val jedisPipeline: Pipeline = jedisPooled.pipelined()
 
 
@@ -32,7 +30,6 @@ object Main {
 
 		println("Running Q1.3 ...")
 		println("Executed in: " + calculateExecutionTime(runQ1_3) + "ns")
-
 
 		jedisPipeline.close()
 		jedisPooled.close()
@@ -63,38 +60,20 @@ object Main {
 	 *
 	 */
 	private def runQ1_1(): Unit = {
-		// First, get all keys of hashes where d_year = 1993
-		val getAllMatchingDatesQuery = new Query()
-			.addFilter(new Query.NumericFilter("d_year", 1993, 1993)) // Filter using the yeas
-			.limit(0, Integer.MAX_VALUE) // Get as many results as possible with the Integer max
-			.returnFields("d_datekey") // Only return the d_datekey to save space
-			.timeout(Integer.MAX_VALUE) // The timeout parameter is very important. If the timout is reached, it takes the ones it already has, which can result in different results running the same query
+		val dateFilters: List[Query.Filter] = List(new Query.NumericFilter("d_year", 1993, 1993))
+		val dateDocuments: List[Document] = queryDocuments("date-index", dateFilters, List("d_datekey"))
 
-		// Search for documents matching the query in the "date-index" index
-		val dateSearchResult = jedisPooled.ftSearch("date-index", getAllMatchingDatesQuery)
-		val relevantDates: List[String] = dateSearchResult.getDocuments.asScala.toList.map(_.getString("d_datekey"))
+		val lineorderFilters = List(
+			new Query.NumericFilter("lo_discount", 1, 3),
+			new Query.NumericFilter("lo_quantity", 0, 24) // This is not quite correct, since it is assumed that quantity always >= 0
+		)
+		val lineorderDocuments = queryDocuments("lineorder-index", lineorderFilters, List("lo_orderdate", "lo_extendedprice", "lo_discount"))
 
-		//println("Found " + relevantDates.length + " relevant dates.")
-
-
-		// Second, get all keys and all values of the fields lo_orderdate, lo_extendedprice and lo_discount from the lineorder hashes
-		val getAllLineorderDatesQuery = new Query()
-			.addFilter(new Query.NumericFilter("lo_discount", 1, 3))
-			.addFilter(new Query.NumericFilter("lo_quantity", 0, 24)) //TODO: this is not quite correct, since it is assumed that quantitiy always >= 0
-			.limit(0, Integer.MAX_VALUE)
-			.returnFields("lo_orderdate", "lo_extendedprice", "lo_discount")
-			.timeout(Integer.MAX_VALUE) // The timeout parameter is very important. If the timout is reached, it takes the ones it already has, which can result in different results running the same query
-
-		val lineorderSearchResults = jedisPooled.ftSearch("lineorder-index", getAllLineorderDatesQuery)
-		val lineorderDocuments: List[Document] = lineorderSearchResults.getDocuments.asScala.toList
-
-		//println("Found " + lineorderDocuments.length + " matching lineorder documents.")
-
-		val relevantLineOrderDocuments = lineorderDocuments.filter(doc => relevantDates.contains(doc.getString("lo_orderdate")))
+		val relevantLineOrderDocuments = filterDocuments(lineorderDocuments, "lo_orderdate", dateDocuments, "d_datekey")
 		val revenue = relevantLineOrderDocuments.map(doc => doc.getString("lo_extendedprice").toLong * doc.getString("lo_discount").toLong).sum // The usage of Long is crucial, since the result > Integer MAX
-
 		println("Revenue: " + revenue)
 	}
+
 
 	/**
 	 * Original Q1.2 Query in SQL
@@ -107,41 +86,24 @@ object Main {
 	 * and lo_quantity between 26 and 35;
 	 */
 	private def runQ1_2(): Unit = {
-		// First, get all keys of hashes where d_yearmonthnum has the value 199401
-		val getAllMatchingDatesQuery = new Query()
-			.addFilter(new Query.NumericFilter("d_yearmonthnum", 199401, 199401)) // Filter using the yeas
-			.limit(0, Integer.MAX_VALUE) // Get as many results as possible with the Integer max
-			.returnFields("d_datekey") // Only return the d_datekey to save space
-			.timeout(Integer.MAX_VALUE) // The timeout parameter is very important. If the timout is reached, it takes the ones it already has, which can result in different results running the same query
+		val dateFilters = List(
+			new Query.NumericFilter("d_yearmonthnum", 199401, 199401))
+		val dateDocuments = queryDocuments("date-index", dateFilters, List("d_datekey"))
 
-		// Search for documents matching the query in the "date-index" index
-		val dateSearchResult = jedisPooled.ftSearch("date-index", getAllMatchingDatesQuery)
-		val relevantDates: List[String] = dateSearchResult.getDocuments.asScala.toList.map(_.getString("d_datekey"))
+		val lineorderFilters = List(
+			new Query.NumericFilter("lo_discount", 4, 6),
+			new Query.NumericFilter("lo_quantity", 26, 35)
+		)
+		val lineorderDocuments = queryDocuments("lineorder-index", lineorderFilters, List("lo_orderdate", "lo_extendedprice", "lo_discount"))
 
-		//println("Found " + relevantDates.length + " relevant dates.")
-
-
-		// Second, get all keys and all values of the fields lo_orderdate, lo_extendedprice and lo_discount from the lineorder hashes
-		val getAllLineorderDatesQuery = new Query()
-			.addFilter(new Query.NumericFilter("lo_discount", 4, 6))
-			.addFilter(new Query.NumericFilter("lo_quantity", 26, 35))
-			.limit(0, Integer.MAX_VALUE)
-			.returnFields("lo_orderdate", "lo_extendedprice", "lo_discount")
-			.timeout(Integer.MAX_VALUE) // The timeout parameter is very important. If the timout is reached, it takes the ones it already has, which can result in different results running the same query
-
-		val lineorderSearchResults = jedisPooled.ftSearch("lineorder-index", getAllLineorderDatesQuery)
-		val lineorderDocuments: List[Document] = lineorderSearchResults.getDocuments.asScala.toList
-
-		//println("Found " + lineorderDocuments.length + " matching lineorder documents.")
-
-		val relevantLineOrderDocuments = lineorderDocuments.filter(doc => relevantDates.contains(doc.getString("lo_orderdate")))
+		val relevantLineOrderDocuments = filterDocuments(lineorderDocuments, "lo_orderdate", dateDocuments, "d_datekey")
 		val revenue = relevantLineOrderDocuments.map(doc => doc.getString("lo_extendedprice").toLong * doc.getString("lo_discount").toLong).sum // The usage of Long is crucial, since the result > Integer MAX
 
 		println("Revenue: " + revenue)
 	}
 
 	/**
-	 * Original Query:
+	 * Original Q1.3 Query in SQL
 	 *
 	 * select sum(lo_extendedprice*lo_discount) as revenue
 	 * from lineorder, date
@@ -152,47 +114,71 @@ object Main {
 	 * and lo_quantity between 26 and 35;
 	 */
 	private def runQ1_3(): Unit = {
-		// First, get all keys of hashes where d_yearmonthnum has the value 199401
-		val getAllMatchingDatesQuery = new Query()
-			.addFilter(new Query.NumericFilter("d_weeknuminyear", 6, 6)) // Filter using the weeknumner
-			.addFilter(new Query.NumericFilter("d_year", 1994, 1994))
-			.limit(0, Integer.MAX_VALUE) // Get as many results as possible with the Integer max
-			.returnFields("d_datekey") // Only return the d_datekey to save space
-			.timeout(Integer.MAX_VALUE) // The timeout parameter is very important. If the timout is reached, it takes the ones it already has, which can result in different results running the same query
+		val dateFilters = List(
+			new Query.NumericFilter("d_weeknuminyear", 6, 6),
+			new Query.NumericFilter("d_year", 1994, 1994))
+		val dateDocuments = queryDocuments("date-index", dateFilters, List("d_datekey"))
 
-		// Search for documents matching the query in the "date-index" index
-		val dateSearchResult = jedisPooled.ftSearch("date-index", getAllMatchingDatesQuery)
-		val relevantDates: List[String] = dateSearchResult.getDocuments.asScala.toList.map(_.getString("d_datekey"))
+		val lineorderFilters = List(
+			new Query.NumericFilter("lo_discount", 5, 7),
+			new Query.NumericFilter("lo_quantity", 26, 35)
+		)
+		val lineorderDocuments = queryDocuments("lineorder-index", lineorderFilters, List("lo_orderdate", "lo_extendedprice", "lo_discount"))
 
-		//println("Found " + relevantDates.length + " relevant dates.")
-
-
-		// Second, get all keys and all values of the fields lo_orderdate, lo_extendedprice and lo_discount from the lineorder hashes
-		val getAllLineorderDatesQuery = new Query()
-			.addFilter(new Query.NumericFilter("lo_discount", 5, 7))
-			.addFilter(new Query.NumericFilter("lo_quantity", 26, 35))
-			.limit(0, Integer.MAX_VALUE)
-			.returnFields("lo_orderdate", "lo_extendedprice", "lo_discount")
-			.timeout(Integer.MAX_VALUE) // The timeout parameter is very important. If the timout is reached, it takes the ones it already has, which can result in different results running the same query
-
-		val lineorderSearchResults = jedisPooled.ftSearch("lineorder-index", getAllLineorderDatesQuery)
-		val lineorderDocuments: List[Document] = lineorderSearchResults.getDocuments.asScala.toList
-
-		//println("Found " + lineorderDocuments.length + " matching lineorder documents.")
-
-		val relevantLineOrderDocuments = lineorderDocuments.filter(doc => relevantDates.contains(doc.getString("lo_orderdate")))
+		val relevantLineOrderDocuments = filterDocuments(lineorderDocuments, "lo_orderdate", dateDocuments, "d_datekey")
 		val revenue = relevantLineOrderDocuments.map(doc => doc.getString("lo_extendedprice").toLong * doc.getString("lo_discount").toLong).sum // The usage of Long is crucial, since the result > Integer MAX
 
 		println("Revenue: " + revenue)
 	}
 
 
+	/**
+	 * This method generalises running queries against Redis to retrieve a list of documents
+	 *
+	 * @param indexName    The index that should be used
+	 * @param filters      A list of Query.Filter objects to filter the results
+	 * @param returnFields The fields that should be returned. This can be used to ignore irrelevant fields.
+	 * @return A List[Document] with all relevant Documents found by the query
+	 */
+	private def queryDocuments(indexName: String, filters: List[Query.Filter], returnFields: List[String]): List[Document] = {
+		val query = new Query()
+			.limit(0, Integer.MAX_VALUE) // Set the limit of results as high as possible
+			.returnFields(returnFields: _*) // Define which fields should be included in the Document objects
+			.timeout(Integer.MAX_VALUE) // Make sure to enable as much time as possible to the Query so it can get as much results as possible
+
+		// Add filters
+		filters.foreach(filter => {
+			query.addFilter(filter)
+		})
+		// Execute query and convert result to a scala List[Document]
+		jedisPooled.ftSearch(indexName, query).getDocuments.asScala.toList
+	}
+
+	/**
+	 * This method can be used to filter a List[Document] based on another List[Document]
+	 *
+	 * @param documentsToFilter     The List[Document] that should be filtered
+	 * @param filterField1          The field of documentsToFilter based on which the comparison with the other list, documentsToFilterWith, should be done
+	 * @param documentsToFilterWith The List[Documents] which is used to filter documentsToFilter
+	 * @param filterField2          The field of documentsToFilterWith based on which the comparison with the other list, documentsToFilter, should be done
+	 * @return A List[Document] that contains all Documents of documentsToFilter that match the filter criteria
+	 */
+	private def filterDocuments(documentsToFilter: List[Document], filterField1: String, documentsToFilterWith: List[Document], filterField2: String): List[Document] = {
+		val filterValues = documentsToFilterWith.map(_.getString(filterField2)).toSet // Converting to set to enable faster comparison due to constant-time lookups
+		documentsToFilter.filter(doc => filterValues.contains(doc.getString(filterField1)))
+	}
 
 
-
-	def calculateExecutionTime(f: () => Unit): Long = {
+	/**
+	 * This function can be used to execute any other function while measuring the execution time
+	 *
+	 * @param f The function to be executed
+	 * @return The execution time of f in nanoseconds
+	 */
+	private def calculateExecutionTime(f: () => Unit): Long = {
 		val startTime = System.nanoTime
 		f()
 		System.nanoTime() - startTime
 	}
+
 }
