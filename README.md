@@ -118,7 +118,7 @@ See Q1.1 and Q1.2
 
 To work, the index must contain d_weeknuminyear.
 ``` TERMINAl
- FT.ALTER date-index SCHEMA ADD d_weeknuminyear NUMERIC 
+FT.ALTER date-index SCHEMA ADD d_weeknuminyear NUMERIC 
 ```
 ## Q2.1
 ### Original
@@ -132,6 +132,19 @@ and p_category = 'MFGR#12'
 and s_region = 'AMERICA'
 group by d_year, p_brand1
 order by d_year, p_brand1;
+```
+TODO: Check if faster when indexs are sortable
+To work, some more indexes have to be created and existing ones have to be extended:
+``` TERMINAl
+FT.ALTER lineorder-index SCHEMA ADD lo_partkey NUMERIC 
+FT.ALTER lineorder-index SCHEMA ADD lo_suppkey NUMERIC 
+```
+``` TERMINAL
+FT.CREATE part-index PREFIX 1 "part:" SCHEMA p_category TEXT
+```
+
+``` TERMINAL
+FT.CREATE supplier-index PREFIX 1 "supplier:" SCHEMA s_region TEXT
 ```
 
 ## Q2.2
