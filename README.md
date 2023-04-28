@@ -160,6 +160,11 @@ and s_region = 'ASIA'
 group by d_year, p_brand1
 order by d_year, p_brand1;
 ```
+To work, the part index has to be altered:
+```` TERMINAL
+FT.ALTER part-index SCHEMA ADD p_brand1 TEXT 
+````
+
 
 ## Q2.3
 ### Original
