@@ -39,7 +39,7 @@ object Q2_2 extends RedisQuery {
 		val dateDocuments = queryDocuments(jedisPooled, "date-index", returnFields = List("d_year", "d_datekey"))
 
 
-		val supplierQuery: Query = new Query("@s_region:ASIA")
+		val supplierQuery: Query = new Query("@s_region:{ASIA}")
 		val supplierDocuments = queryDocuments(jedisPooled, "supplier-index", supplierQuery, returnFields = List("s_suppkey"))
 
 
@@ -54,7 +54,7 @@ object Q2_2 extends RedisQuery {
 			.pipe(filterAndJoinDocuments(_, "lo_orderdate", dateDocuments, "d_datekey", List("d_year")))
 
 
-		val grouped = relevantLineOrderDocuments.groupBy(doc => (doc.getString("d_year"), doc.getString("p_brand1")))
+		val grouped: Map[(String, String), List[Document]] = relevantLineOrderDocuments.groupBy(doc => (doc.getString("d_year"), doc.getString("p_brand1")))
 
 
 		val result: List[((String, String), Long)] = grouped.view.mapValues(docs => docs.map(_.getString("lo_revenue").toLong).sum).toList.sortBy(_._1)

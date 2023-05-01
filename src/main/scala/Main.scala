@@ -23,7 +23,7 @@ object Main {
 	def main(args: Array[String]): Unit = {
 		jedisPooled.sendCommand(SearchCommand.CONFIG, "SET", "MAXSEARCHRESULTS", "-1")
 
-		/*
+
 		println("Running Q1.1 ...")
 		println("Executed in: " + calculateExecutionTime(Q1_1.execute(jedisPooled)) + "ns")
 
@@ -32,14 +32,14 @@ object Main {
 
 		println("Running Q1.3 ...")
 		println("Executed in: " + calculateExecutionTime(Q1_3.execute(jedisPooled)) + "ns")
+
+
 		println("Running Q2.1 ...")
 		println("Executed in: " + calculateExecutionTime(Q2_1.execute(jedisPooled)) + "ns")
-		*/
+
 
 		println("Running Q2.2 ...")
 		println("Executed in: " + calculateExecutionTime(Q2_2.execute(jedisPooled)) + "ns")
-
-
 
 
 		jedisPipeline.close()
