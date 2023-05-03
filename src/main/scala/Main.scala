@@ -1,6 +1,6 @@
 package de.aljoshavieth.redisolapclient
 
-import de.aljoshavieth.redisolapclient.ssbqueries.{Q1_1, Q1_2, Q1_3, Q2_1, Q2_2}
+import de.aljoshavieth.redisolapclient.ssbqueries.{Q1_1, Q1_1_b, Q1_1_c, Q1_2, Q1_3, Q2_1, Q2_2}
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig
 import redis.clients.jedis.search.SearchProtocol.SearchCommand
 import redis.clients.jedis.search.{Document, Query}
@@ -27,6 +27,18 @@ object Main {
 		println("Running Q1.1 ...")
 		println("Executed in: " + calculateExecutionTime(Q1_1.execute(jedisPooled)) + "ns")
 
+		println("Running Q1.1_b ...")
+		println("Executed in: " + calculateExecutionTime(Q1_1_b.execute(jedisPooled)) + "ns")
+
+
+		println("Running Q1.1_c ...")
+		println("Executed in: " + calculateExecutionTime(Q1_1_c.execute(jedisPooled)) + "ns")
+
+		/*
+
+		println("Running Q1.1 ...")
+		println("Executed in: " + calculateExecutionTime(Q1_1.execute(jedisPooled)) + "ns")
+
 		println("Running Q1.2 ...")
 		println("Executed in: " + calculateExecutionTime(Q1_2.execute(jedisPooled)) + "ns")
 
@@ -40,6 +52,7 @@ object Main {
 
 		println("Running Q2.2 ...")
 		println("Executed in: " + calculateExecutionTime(Q2_2.execute(jedisPooled)) + "ns")
+		*/
 
 
 		jedisPipeline.close()
