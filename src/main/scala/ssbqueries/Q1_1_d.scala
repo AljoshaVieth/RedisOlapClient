@@ -9,7 +9,7 @@ import redis.clients.jedis.{JedisPooled, Pipeline}
 import scala.jdk.CollectionConverters.*
 
 
-object Q1_1_c extends RedisQuery {
+object Q1_1_d extends RedisQuery {
 
 	/**
 	 * Original Q1.1 in SQL:
@@ -36,7 +36,7 @@ object Q1_1_c extends RedisQuery {
 			List(dateRange) // return a List with the dateRange string
 		}
 
-		println(d_datekeys)
+		println(d_datekeys) // output: List("@lo_orderdate:[20220502 20220502]", "@lo_orderdate:[20220503 20220503]", ...)
 
 		val queryString = d_datekeys.mkString(" | ")
 		println(queryString)
@@ -49,6 +49,6 @@ object Q1_1_c extends RedisQuery {
 		println("relevant lineorder documents: " + relevantLineOrderDocuments.length)
 		val revenue = relevantLineOrderDocuments.map(doc => doc.getString("lo_extendedprice").toLong * doc.getString("lo_discount").toLong).sum // The usage of Long is crucial, since the result > Integer MAX
 		println("Revenue: " + revenue)
-
+		
 	}
 }

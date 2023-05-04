@@ -1,6 +1,6 @@
 package de.aljoshavieth.redisolapclient
 
-import de.aljoshavieth.redisolapclient.ssbqueries.{Q1_1, Q1_1_b, Q1_1_c, Q1_2, Q1_3, Q2_1, Q2_2}
+import de.aljoshavieth.redisolapclient.ssbqueries.{Q1_1, Q1_1_b, Q1_1_c, Q1_2, Q1_2_c, Q1_3, Q1_3_c, Q2_1, Q2_2}
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig
 import redis.clients.jedis.search.SearchProtocol.SearchCommand
 import redis.clients.jedis.search.{Document, Query}
@@ -33,6 +33,18 @@ object Main {
 
 		println("Running Q1.1_c ...")
 		println("Executed in: " + calculateExecutionTime(Q1_1_c.execute(jedisPooled)) + "ns")
+
+		println("Running Q1.2 ...")
+		println("Executed in: " + calculateExecutionTime(Q1_2.execute(jedisPooled)) + "ns")
+
+		println("Running Q1.2_c ...")
+		println("Executed in: " + calculateExecutionTime(Q1_2_c.execute(jedisPooled)) + "ns")
+
+		println("Running Q1.3 ...")
+		println("Executed in: " + calculateExecutionTime(Q1_3.execute(jedisPooled)) + "ns")
+
+		println("Running Q1.3_c ...")
+		println("Executed in: " + calculateExecutionTime(Q1_3_c.execute(jedisPooled)) + "ns")
 
 		/*
 

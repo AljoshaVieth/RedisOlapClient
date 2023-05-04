@@ -1,35 +1,27 @@
 package de.aljoshavieth.redisolapclient
 package ssbqueries
 
-import ssbqueries.Q1_1.queryDocuments
+import de.aljoshavieth.redisolapclient.ssbqueries.Q1_2_c.queryDocuments
+import redis.clients.jedis.JedisPooled
+import redis.clients.jedis.search.{Document, Query}
 
-import redis.clients.jedis.search.{Document, Query, SearchResult}
-import redis.clients.jedis.{JedisPooled, Pipeline}
-
-import scala.jdk.CollectionConverters.*
-
-
-object Q1_1_c extends RedisQuery {
-
+object Q1_3_c extends RedisQuery {
 	/**
-	 * Original Q1.1 in SQL:
+	 * Original Q1.3 Query in SQL
 	 *
 	 * select sum(lo_extendedprice*lo_discount) as revenue
 	 * from lineorder, date
 	 * where lo_orderdate = d_datekey
-	 * and d_year = 1993
-	 * and lo_discount between 1 and 3
-	 * and lo_quantity < 25;
+	 * and d_weeknuminyear = 6
+	 * and d_year = 1994
+	 * and lo_discount between 5 and 7
+	 * and lo_quantity between 26 and 35;
 	 */
 
-
 	override def execute(jedisPooled: JedisPooled): Unit = {
-		val dateFilters: List[Query.Filter] = List(new Query.NumericFilter("d_year", 1993, 1993))
+		val dateFilters: List[Query.Filter] = List(new Query.NumericFilter("d_weeknuminyear", 6, 6), new Query.NumericFilter("d_year", 1994, 1994))
 		val dateDocuments: List[Document] = queryDocuments(jedisPooled, "date-index", filters = dateFilters, List("d_datekey"))
 		println("found date obejcts: " + dateDocuments.length)
-
-		val pipeline: Pipeline = jedisPooled.pipelined()
-
 
 		val d_datekeys = dateDocuments.flatMap { doc =>
 			val dateRange = "@lo_orderdate:[" + doc.getString("d_datekey") + " " + doc.getString("d_datekey") + "]"
@@ -42,13 +34,12 @@ object Q1_1_c extends RedisQuery {
 		println(queryString)
 		val query = new Query(queryString)
 		val lineorderFilters = List(
-			new Query.NumericFilter("lo_discount", 1, 3),
-			new Query.NumericFilter("lo_quantity", 0, 24) // This is not quite correct, since it is assumed that quantity always >= 0
+			new Query.NumericFilter("lo_discount", 5, 7),
+			new Query.NumericFilter("lo_quantity", 26, 35)
 		)
 		val relevantLineOrderDocuments = queryDocuments(jedisPooled, "lineorder-index", query = query, filters = lineorderFilters, List("lo_orderdate", "lo_extendedprice", "lo_discount"))
 		println("relevant lineorder documents: " + relevantLineOrderDocuments.length)
 		val revenue = relevantLineOrderDocuments.map(doc => doc.getString("lo_extendedprice").toLong * doc.getString("lo_discount").toLong).sum // The usage of Long is crucial, since the result > Integer MAX
 		println("Revenue: " + revenue)
-
 	}
 }
