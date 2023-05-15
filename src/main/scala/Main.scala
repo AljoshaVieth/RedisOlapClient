@@ -34,6 +34,9 @@ object Main {
 
 	private def runServerApproachQueries(): Unit = {
 		println(jedisPooled.fcall("querySpecificDocuments", List[String]().asJava, List[String]().asJava))
+		println(jedisPooled.fcall("queryDocuments", List[String]().asJava, List("date-index", "@d_year:[1993 1993]").asJava))
+		println(jedisPooled.fcall("queryFilterCriteria", List[String]().asJava, List("date-index", "@d_year:[1993 1993]", "d_datekey").asJava))
+
 	}
 
 	private def runClientApproachQueries(): Unit = {
