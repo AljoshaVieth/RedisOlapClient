@@ -1,6 +1,8 @@
 package de.aljoshavieth.redisolapclient
 
-import de.aljoshavieth.redisolapclient.ssbqueries.{Q1_1, Q1_1_b, Q1_1_c, Q1_2, Q1_2_c, Q1_3, Q1_3_c, Q2_1, Q2_2}
+import clientapproach.*
+import serverapproach.LuaScriptLoader
+
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig
 import redis.clients.jedis.search.SearchProtocol.SearchCommand
 import redis.clients.jedis.search.{Document, Query}
@@ -21,56 +23,79 @@ object Main {
 
 
 	def main(args: Array[String]): Unit = {
-		jedisPooled.sendCommand(SearchCommand.CONFIG, "SET", "MAXSEARCHRESULTS", "-1")
+		configureRedis()
 
-
-		println("Running Q1.1 ...")
-		println("Executed in: " + calculateExecutionTime(Q1_1.execute(jedisPooled)) + "ns")
-
-		println("Running Q1.1_b ...")
-		println("Executed in: " + calculateExecutionTime(Q1_1_b.execute(jedisPooled)) + "ns")
-
-
-		println("Running Q1.1_c ...")
-		println("Executed in: " + calculateExecutionTime(Q1_1_c.execute(jedisPooled)) + "ns")
-
-		println("Running Q1.2 ...")
-		println("Executed in: " + calculateExecutionTime(Q1_2.execute(jedisPooled)) + "ns")
-
-		println("Running Q1.2_c ...")
-		println("Executed in: " + calculateExecutionTime(Q1_2_c.execute(jedisPooled)) + "ns")
-
-		println("Running Q1.3 ...")
-		println("Executed in: " + calculateExecutionTime(Q1_3.execute(jedisPooled)) + "ns")
-
-		println("Running Q1.3_c ...")
-		println("Executed in: " + calculateExecutionTime(Q1_3_c.execute(jedisPooled)) + "ns")
-
-		/*
-
-		println("Running Q1.1 ...")
-		println("Executed in: " + calculateExecutionTime(Q1_1.execute(jedisPooled)) + "ns")
-
-		println("Running Q1.2 ...")
-		println("Executed in: " + calculateExecutionTime(Q1_2.execute(jedisPooled)) + "ns")
-
-		println("Running Q1.3 ...")
-		println("Executed in: " + calculateExecutionTime(Q1_3.execute(jedisPooled)) + "ns")
-
-
-		println("Running Q2.1 ...")
-		println("Executed in: " + calculateExecutionTime(Q2_1.execute(jedisPooled)) + "ns")
-
-
-		println("Running Q2.2 ...")
-		println("Executed in: " + calculateExecutionTime(Q2_2.execute(jedisPooled)) + "ns")
-		*/
-
+		//runClientApproachQueries()
+		runServerApproachQueries()
 
 		jedisPipeline.close()
 		jedisPooled.close()
 	}
 
+	private def runServerApproachQueries(): Unit = {
+		println(jedisPooled.fcall("querySpecificDocuments", List[String]().asJava, List[String]().asJava))
+	}
+
+	private def runClientApproachQueries(): Unit = {
+
+		/*
+
+		println("\n----------------------------------------")
+		println("Running Q1.1 ...")
+		println("Executed in: " + calculateExecutionTime(Q1_1.execute(jedisPooled)) + "ns")
+
+		println("\n----------------------------------------")
+		println("Running Q1.1_b ...")
+		println("Executed in: " + calculateExecutionTime(Q1_1_b.execute(jedisPooled)) + "ns")
+
+		println("\n----------------------------------------")
+		println("Running Q1.1_c ...")
+		println("Executed in: " + calculateExecutionTime(Q1_1_c.execute(jedisPooled)) + "ns")
+
+		println("\n----------------------------------------")
+		println("Running Q1.2 ...")
+		println("Executed in: " + calculateExecutionTime(Q1_2.execute(jedisPooled)) + "ns")
+
+		println("\n----------------------------------------")
+		println("Running Q1.2_c ...")
+		println("Executed in: " + calculateExecutionTime(Q1_2_c.execute(jedisPooled)) + "ns")
+
+		println("\n----------------------------------------")
+		println("Running Q1.3 ...")
+		println("Executed in: " + calculateExecutionTime(Q1_3.execute(jedisPooled)) + "ns")
+
+		println("\n----------------------------------------")
+		println("Running Q1.3_c ...")
+		println("Executed in: " + calculateExecutionTime(Q1_3_c.execute(jedisPooled)) + "ns")
+
+		*/
+
+		println("\n----------------------------------------")
+		println("Running Q2.1 ...")
+		println("Executed in: " + calculateExecutionTime(Q2_1.execute(jedisPooled)) + "ns")
+
+		println("\n----------------------------------------")
+		println("Running Q2.1_c ...")
+		println("Executed in: " + calculateExecutionTime(Q2_1_c.execute(jedisPooled)) + "ns")
+
+
+		/*
+		println("\n----------------------------------------")
+		println("Running Q2.2 ...")
+		println("Executed in: " + calculateExecutionTime(Q2_2.execute(jedisPooled)) + "ns")
+		*/
+
+
+	}
+
+	private def configureRedis(): Unit = {
+		println("Configuring Redis...")
+		println(jedisPooled.functionLoadReplace(LuaScriptLoader.loadLuaScript("src/main/resources/olaplibrary.lua")))
+		println("Set function")
+		jedisPooled.sendCommand(SearchCommand.CONFIG, "SET", "MAXSEARCHRESULTS", "-1")
+		jedisPooled.sendCommand(SearchCommand.CONFIG, "SET", "MAXAGGREGATERESULTS", "-1")
+		jedisPooled.sendCommand(SearchCommand.CONFIG, "SET", "TIMEOUT", "0")
+	}
 
 
 	/**
@@ -80,9 +105,9 @@ object Main {
 	 * @return The execution time of f in nanoseconds
 	 */
 	private def calculateExecutionTime(f: => Unit): Long = {
-		val startTime = System.nanoTime
+		val startTime = System.currentTimeMillis()
 		f
-		System.nanoTime() - startTime
+		System.currentTimeMillis() - startTime
 	}
 
 }

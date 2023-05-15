@@ -1,5 +1,5 @@
 package de.aljoshavieth.redisolapclient
-package ssbqueries
+package clientapproach
 
 import redis.clients.jedis.JedisPooled
 import redis.clients.jedis.search.{Document, Query}

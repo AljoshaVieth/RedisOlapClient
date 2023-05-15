@@ -1,5 +1,5 @@
 package de.aljoshavieth.redisolapclient
-package ssbqueries
+package clientapproach
 
 import redis.clients.jedis.JedisPooled
 import redis.clients.jedis.search.{Document, Query}
@@ -42,7 +42,7 @@ object Q1_1 extends RedisQuery {
 		val lineorderDocuments = queryDocuments(jedisPooled, "lineorder-index", filters = lineorderFilters, List("lo_orderdate", "lo_extendedprice", "lo_discount"))
 
 		val relevantLineOrderDocuments = filterDocuments(lineorderDocuments, "lo_orderdate", dateDocuments, "d_datekey")
-		println("Relevant lineorder documents: " + relevantLineOrderDocuments.length)
+		//println("Relevant lineorder documents: " + relevantLineOrderDocuments.length)
 		val revenue = relevantLineOrderDocuments.map(doc => doc.getString("lo_extendedprice").toLong * doc.getString("lo_discount").toLong).sum // The usage of Long is crucial, since the result > Integer MAX
 		println("Revenue: " + revenue)
 	}

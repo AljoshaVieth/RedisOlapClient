@@ -1,5 +1,5 @@
 package de.aljoshavieth.redisolapclient
-package ssbqueries
+package clientapproach
 
 import redis.clients.jedis.search.{Document, Query, SearchResult}
 import redis.clients.jedis.{JedisPooled, Pipeline}
@@ -7,6 +7,10 @@ import redis.clients.jedis.{JedisPooled, Pipeline}
 import scala.jdk.CollectionConverters.*
 
 
+/**
+ * In Difference to the other approcahes, this approach first fetches all relevant date documents and then
+ * uses a pipeline to query every lineorder document in a seperate request
+ */
 object Q1_1_b extends RedisQuery {
 
 	/**
@@ -24,7 +28,7 @@ object Q1_1_b extends RedisQuery {
 	override def execute(jedisPooled: JedisPooled): Unit = {
 		val dateFilters: List[Query.Filter] = List(new Query.NumericFilter("d_year", 1993, 1993))
 		val dateDocuments: List[Document] = queryDocuments(jedisPooled, "date-index", filters = dateFilters, List("d_datekey"))
-		println("found date obejcts: " + dateDocuments.length)
+		//println("found date obejcts: " + dateDocuments.length)
 
 		val pipeline: Pipeline = jedisPooled.pipelined()
 		val filters = List(
@@ -50,7 +54,7 @@ object Q1_1_b extends RedisQuery {
 		val searchResults: List[SearchResult] = pipeline.syncAndReturnAll().asScala.toList.map(_.asInstanceOf[SearchResult])
 		val relevantLineOrderDocuments: List[Document] = searchResults.flatMap(_.getDocuments.asScala)
 
-		println("relevant lineorder documents: " + relevantLineOrderDocuments.length)
+		//println("relevant lineorder documents: " + relevantLineOrderDocuments.length)
 		val revenue = relevantLineOrderDocuments.map(doc => doc.getString("lo_extendedprice").toLong * doc.getString("lo_discount").toLong).sum // The usage of Long is crucial, since the result > Integer MAX
 		println("Revenue: " + revenue)
 

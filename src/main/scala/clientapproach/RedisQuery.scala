@@ -1,5 +1,5 @@
 package de.aljoshavieth.redisolapclient
-package ssbqueries
+package clientapproach
 
 import redis.clients.jedis.JedisPooled
 import redis.clients.jedis.search.{Document, Query}
@@ -28,7 +28,7 @@ abstract class RedisQuery {
 		query
 			.limit(0, Integer.MAX_VALUE) // Set the limit of results as high as possible
 			.returnFields(returnFields: _*) // Define which fields should be included in the Document objects
-			.timeout(Integer.MAX_VALUE) // Make sure to enable as much time as possible to the Query so it can get as much results as possible
+			.timeout(Integer.MAX_VALUE) // Make sure to enable as much time as possible to the Query so it can get as much results as possible TODO: can maybe disabled with setting it to 0
 
 		// Add filters
 		filters.foreach(filter => {
