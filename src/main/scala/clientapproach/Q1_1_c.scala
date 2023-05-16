@@ -34,7 +34,7 @@ object Q1_1_c extends RedisQuery {
 			List(validDateRanges) // return a List with the dateRange string
 		}
 
-		println(d_datekeys)
+		//println(d_datekeys)
 
 		val queryString = d_datekeys.mkString(" | ")
 		//println(queryString)
