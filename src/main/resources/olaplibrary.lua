@@ -77,17 +77,40 @@ local function runQ1_1(keys, args)
         if flattened[i] == "lo_extendedprice" then
             currentLoExtendedPrice = flattened[i + 1]
         elseif flattened[i] == "lo_discount" then
-            currentLoDiscount = flattened[i+1]
+            currentLoDiscount = flattened[i + 1]
             revenue = revenue + currentLoDiscount * currentLoExtendedPrice
         end
     end
-    return "revenue: "..revenue
+
+    return "revenue: " .. revenue
 end
+
+local function runQ1_2(keys, args)
+    local queryFilter = queryFilterCriteria(keys, args)
+    local query_result = redis.call("FT.SEARCH", "lineorder-index", "@lo_discount:[4 6] @lo_quantity:[26 35]" ..queryFilter, "LIMIT", 0, 2147483647)
+    local flattened = flattenTable(query_result)
+    local currentLoExtendedPrice = 0
+    local currentLoDiscount = 0
+    local revenue = 0
+
+    for i = 1, #flattened do
+        if flattened[i] == "lo_extendedprice" then
+            currentLoExtendedPrice = flattened[i + 1]
+        elseif flattened[i] == "lo_discount" then
+            currentLoDiscount = flattened[i + 1]
+            revenue = revenue + currentLoDiscount * currentLoExtendedPrice
+        end
+    end
+
+    return "revenue: " .. revenue
+end
+
 
 redis.register_function('querySpecificDocuments', querySpecificDocuments)
 redis.register_function('queryDocuments', queryDocuments)
 redis.register_function('queryFilterCriteria', queryFilterCriteria)
 redis.register_function('runQ1_1', runQ1_1)
+redis.register_function('runQ1_2', runQ1_2)
 
 
 
