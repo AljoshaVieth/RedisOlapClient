@@ -2,20 +2,24 @@
 
 local function flattenTable(tbl)
     local flattened = {}
+    local index = 1
 
-    for _, value in ipairs(tbl) do
+    local function flatten(value)
         if type(value) == "table" then
-            local nested = flattenTable(value)
-            for _, nestedValue in ipairs(nested) do
-                table.insert(flattened, nestedValue)
+            for _, nestedValue in ipairs(value) do
+                flatten(nestedValue)
             end
         else
-            table.insert(flattened, value)
+            flattened[index] = value
+            index = index + 1
         end
     end
 
+    flatten(tbl)
+
     return flattened
 end
+
 
 
 local function querySpecificDocuments(keys, args)
