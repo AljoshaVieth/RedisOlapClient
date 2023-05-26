@@ -1,24 +1,23 @@
 #!lua name=olaplib
 
+-- This function takes a nested table as input and returns a flattened version of it
 local function flattenTable(tbl)
-    local flattened = {}
-    local index = 1
-
+    local flattened = {}  -- Create an empty table to store the flattened values
+    local index = 1  -- Initialize the index for the flattened table
     local function flatten(value)
-        if type(value) == "table" then
+        if type(value) == "table" then  -- If the value is a table, recursively flatten its elements
             for _, nestedValue in ipairs(value) do
                 flatten(nestedValue)
             end
-        else
+        else  -- If the value is not a table, store it in the flattened table
             flattened[index] = value
             index = index + 1
         end
     end
-
-    flatten(tbl)
-
-    return flattened
+    flatten(tbl)  -- Call the flatten function to start flattening the table
+    return flattened  -- Return the flattened table
 end
+
 
 
 
