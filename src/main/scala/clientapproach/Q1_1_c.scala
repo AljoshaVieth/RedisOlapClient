@@ -37,6 +37,7 @@ object Q1_1_c extends RedisQuery {
 		//println(d_datekeys)
 
 		val queryString = d_datekeys.mkString(" | ")
+		println(queryString)
 		//println(queryString)
 		val query = new Query(queryString)
 		val lineorderFilters = List(

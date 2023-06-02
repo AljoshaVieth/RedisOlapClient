@@ -25,28 +25,41 @@ object Main {
 	def main(args: Array[String]): Unit = {
 		configureRedis()
 
-		runClientApproachQueries()
-		runServerApproachQueries()
+		val result = jedisPooled.fcall("experiment", List[String]().asJava, List[String]().asJava)
+		println(result)
+		//runClientApproachQueries()
+		//runServerApproachQueries()
 
 		jedisPipeline.close()
 		jedisPooled.close()
 	}
 
 	private def runServerApproachQueries(): Unit = {
+
 		println("\n----------------------------------------")
 		println("LUA: Running Q1.1_new ...")
 		println("Executed in: " + calculateExecutionTime(serverapproach.Q1_1_new.execute(jedisPooled)) + "ms")
+
 		println("\n----------------------------------------")
 		println("LUA: Running Q1.1 ...")
 		println("Executed in: " + calculateExecutionTime(serverapproach.Q1_1.execute(jedisPooled)) + "ms")
 
 		println("\n----------------------------------------")
+		println("LUA: Running Q1.1_d ...")
+		println("Executed in: " + calculateExecutionTime(serverapproach.Q1_1_d.execute(jedisPooled)) + "ms")
+
+
+		/*
+		println("\n----------------------------------------")
 		println("LUA: Running Q1.2_new ...")
 		println("Executed in: " + calculateExecutionTime(serverapproach.Q1_2_new.execute(jedisPooled)) + "ms")
 		println("\n----------------------------------------")
+		println("LUA: Running Q1.2_c ...")
+		println("Executed in: " + calculateExecutionTime(serverapproach.Q1_2_c.execute(jedisPooled)) + "ms")
+		println("\n----------------------------------------")
 		println("LUA: Running Q1.2 ...")
 		println("Executed in: " + calculateExecutionTime(serverapproach.Q1_2.execute(jedisPooled)) + "ms")
-
+*/
 
 		//println("querySpecificDocuments: " + jedisPooled.fcall("querySpecificDocuments", List[String]().asJava, List[String]().asJava))
 		//println(jedisPooled.fcall("queryDocuments", List[String]().asJava, List("date-index", "@d_year:[1993 1993]").asJava))
@@ -57,10 +70,14 @@ object Main {
 	}
 
 	private def runClientApproachQueries(): Unit = {
+
+		/*
 		println("\n----------------------------------------")
 		println("Running Q1.1_c ...")
 		println("Executed in: " + calculateExecutionTime(Q1_1_c.execute(jedisPooled)) + "ms")
 
+
+		 */
 
 		println("\n----------------------------------------")
 		println("Running Q1.2_c ...")

@@ -30,7 +30,7 @@ object Q1_2_c extends RedisQuery {
 		//println(d_datekeys)
 
 		val queryString = d_datekeys.mkString(" | ")
-		//println(queryString)
+		println(queryString)
 		val query = new Query(queryString)
 		val lineorderFilters = List(
 			new Query.NumericFilter("lo_discount", 4, 6),
