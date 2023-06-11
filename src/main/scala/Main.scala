@@ -3,7 +3,7 @@ package de.aljoshavieth.redisolapclient
 import clientapproach.*
 import clientapproach.q1_1.{Q1_1_client_a, Q1_1_client_b, Q1_1_client_c, Q1_1_client_d}
 import clientapproach.q1_2.{Q1_2_client_a, Q1_2_client_b, Q1_2_client_c, Q1_2_client_d}
-import clientapproach.q1_3.{Q1_3_client_a, Q1_3_client_b, Q1_3_client_c}
+import clientapproach.q1_3.{Q1_3_client_a, Q1_3_client_b, Q1_3_client_c, Q1_3_client_d}
 import clientapproach.q2_1.Q2_1_client_a
 import clientapproach.q2_2.Q2_2_client_a
 import serverapproach.LuaScriptLoader
@@ -118,7 +118,7 @@ object Main {
 		println("Running Q1.2_client_d ...")
 		println("Executed in: " + calculateExecutionTime(Q1_2_client_d.execute(jedisPooled)) + "ms\n")
 
-/*
+
 
 
 		// Q 1.3
@@ -132,25 +132,29 @@ object Main {
 		println("Running Q1.3_client_c ...")
 		println("Executed in: " + calculateExecutionTime(Q1_3_client_c.execute(jedisPooled)) + "ms\n")
 
+		println("Running Q1.3_client_d ...")
+		println("Executed in: " + calculateExecutionTime(Q1_3_client_d.execute(jedisPooled)) + "ms\n")
 
-
-		// Q 2.1
-		println("\n    Q2.1\n")
-		println("Running Q2.1 ...")
-		println("Executed in: " + calculateExecutionTime(Q2_1_client_a.execute(jedisPooled)) + "ms\n")
 
 		/*
-		println("\n----------------------------------------")
-		println("Running Q2.1_c ...")
-		println("Executed in: " + calculateExecutionTime(Q2_1_c.execute(jedisPooled)) + "ms")
 
-		 */
+				// Q 2.1
+				println("\n    Q2.1\n")
+				println("Running Q2.1 ...")
+				println("Executed in: " + calculateExecutionTime(Q2_1_client_a.execute(jedisPooled)) + "ms\n")
+
+				/*
+				println("\n----------------------------------------")
+				println("Running Q2.1_c ...")
+				println("Executed in: " + calculateExecutionTime(Q2_1_c.execute(jedisPooled)) + "ms")
+
+				 */
 
 
-		println("\n----------------------------------------")
-		println("Running Q2.2 ...")
-		println("Executed in: " + calculateExecutionTime(Q2_2_client_a.execute(jedisPooled)) + "ms\n")
-*/
+				println("\n----------------------------------------")
+				println("Running Q2.2 ...")
+				println("Executed in: " + calculateExecutionTime(Q2_2_client_a.execute(jedisPooled)) + "ms\n")
+		*/
 
 	}
 
