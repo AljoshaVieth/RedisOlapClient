@@ -1,5 +1,7 @@
 package de.aljoshavieth.redisolapclient
-package clientapproach
+package clientapproach.q2_1
+
+import clientapproach.RedisQuery
 
 import redis.clients.jedis.JedisPooled
 import redis.clients.jedis.search.{Document, Query}
@@ -20,7 +22,7 @@ import scala.util.chaining.scalaUtilChainingOps
  * group by d_year, p_brand1
  * order by d_year, p_brand1;
  */
-object Q2_1 extends RedisQuery {
+object Q2_1_client_a extends RedisQuery {
 	override def execute(jedisPooled: JedisPooled): Unit = {
 		val partQuery: Query = new Query("@p_category:{MFGR\\#12}")
 		val partDocuments = queryDocuments(jedisPooled, "part-index", partQuery, returnFields = List("p_brand1", "p_partkey"))

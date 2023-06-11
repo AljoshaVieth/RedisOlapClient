@@ -207,16 +207,16 @@ end
 
 
 
-local function experiment(keys, args)
+local function runQ1_1_e(keys, args)
+    local lo_orderdate_query_string = redis.call("GET", "yearDateIndex:1993")
+    local result = redis.call("FT.AGGREGATE", "lineorder-index", "@lo_discount:[1 3] @lo_quantity:[0 24]"..lo_orderdate_query_string, "LOAD", 2, "@lo_discount", "@lo_extendedprice", "APPLY", "@lo_discount * @lo_extendedprice", "AS", "revenue", "GROUPBY", 0, "REDUCE", "SUM", 1, "@revenue", "AS", "total_revenue")
+    return result
+end
 
-    --, "GROUPBY", 1 ,"@revenue", "REDUCE", "SUM", 1, "revenue"
-    --local result1 = redis.call("FT.SEARCH", "lineorder-index" ,"@lo_discount:[1 3] @lo_quantity:[0 24] @lo_orderdate:[19931104 19931104]", "LIMIT", 0 ,2147483647)
-    --redis.log(redis.LOG_WARNING, result1)
-
-    local result2 = redis.call("FT.AGGREGATE", "lineorder-index", "@lo_discount:[1 3] @lo_quantity:[0 24] @lo_orderdate:[19931104 19931104] | @lo_orderdate:[19930708 19930708] | @lo_orderdate:[19930902 19930902]", "APPLY", "@lo_discount * @lo_quantity", "AS", "revenue", "GROUPBY", 1 ,"@revenue")
-    redis.log(redis.LOG_WARNING, result2)
-    return result2
-
+local function runQ1_2_d(keys, args)
+    local queryFilter = queryFilterCriteria(keys, args)
+    local result = redis.call("FT.AGGREGATE", "lineorder-index", "@lo_discount:[1 3] @lo_quantity:[0 24]"..queryFilter, "LIMIT", 0 ,2147483647, "GROUPBY", 2, "@lo_discount", "@lo_extendedprice", "LIMIT", 0, 2147483647, "APPLY", "@lo_discount * @lo_extendedprice", "as", "revenue", "LIMIT", 0, 2147483647, "GROUPBY", 0, "REDUCE", "SUM", 1, "@revenue", "as", "total_revenue", "LIMIT", 0, 2147483647)
+    return result
 end
 
 
@@ -230,7 +230,8 @@ redis.register_function('runQ1_1_new', runQ1_1_new)
 redis.register_function('runQ1_1_d', runQ1_1_d)
 redis.register_function('runQ1_2_new', runQ1_2_new)
 redis.register_function('runQ1_2_c', runQ1_2_c)
-redis.register_function('experiment', experiment)
+redis.register_function('runQ1_1_e', runQ1_1_e)
+redis.register_function('runQ1_2_d', runQ1_2_d)
 
 
 

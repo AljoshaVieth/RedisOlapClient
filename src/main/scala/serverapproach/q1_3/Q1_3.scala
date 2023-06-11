@@ -1,5 +1,7 @@
 package de.aljoshavieth.redisolapclient
-package serverapproach
+package serverapproach.q1_3
+
+import serverapproach.RedisLuaQuery
 
 import redis.clients.jedis.JedisPooled
 

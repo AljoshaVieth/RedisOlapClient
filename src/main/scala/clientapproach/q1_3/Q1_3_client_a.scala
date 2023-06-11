@@ -1,10 +1,12 @@
 package de.aljoshavieth.redisolapclient
-package clientapproach
+package clientapproach.q1_3
+
+import clientapproach.RedisQuery
 
 import redis.clients.jedis.JedisPooled
 import redis.clients.jedis.search.Query
 
-object Q1_3 extends RedisQuery {
+object Q1_3_client_a extends RedisQuery {
 	/**
 	 * Original Q1.3 Query in SQL
 	 *

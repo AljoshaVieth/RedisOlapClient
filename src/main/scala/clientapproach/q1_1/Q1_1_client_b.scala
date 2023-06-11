@@ -1,5 +1,7 @@
 package de.aljoshavieth.redisolapclient
-package clientapproach
+package clientapproach.q1_1
+
+import clientapproach.RedisQuery
 
 import redis.clients.jedis.search.{Document, Query, SearchResult}
 import redis.clients.jedis.{JedisPooled, Pipeline}
@@ -11,7 +13,7 @@ import scala.jdk.CollectionConverters.*
  * In Difference to the other approcahes, this approach first fetches all relevant date documents and then
  * uses a pipeline to query every lineorder document in a seperate request
  */
-object Q1_1_b extends RedisQuery {
+object Q1_1_client_b extends RedisQuery {
 
 	/**
 	 * Original Q1.1 in SQL:

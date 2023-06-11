@@ -1,5 +1,7 @@
 package de.aljoshavieth.redisolapclient
-package clientapproach
+package clientapproach.q1_1
+
+import clientapproach.RedisQuery
 
 import redis.clients.jedis.JedisPooled
 import redis.clients.jedis.search.{Document, Query}
@@ -17,7 +19,7 @@ import redis.clients.jedis.search.{Document, Query}
  * Finally, it sums up all (lo_extendedprice*lo_discount) of the lineorder documents and prints the result.
  *
  */
-object Q1_1 extends RedisQuery {
+object Q1_1_client_a extends RedisQuery {
 
 	/**
 	 * Original Q1.1 in SQL:
