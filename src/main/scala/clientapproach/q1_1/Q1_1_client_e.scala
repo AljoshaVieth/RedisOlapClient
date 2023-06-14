@@ -1,5 +1,5 @@
 package de.aljoshavieth.redisolapclient
-package clientapproach.q1_2
+package clientapproach.q1_1
 
 import clientapproach.RedisQuery
 import clientapproach.q1_1.Q1_1_client_a.queryDocuments
@@ -19,7 +19,7 @@ import scala.deriving.Mirror
 import scala.jdk.CollectionConverters.*
 
 
-object Q1_2_client_d extends RedisQuery {
+object Q1_1_client_e extends RedisQuery {
 
 	/**
 	 * Original Q1.1 in SQL:
@@ -34,17 +34,8 @@ object Q1_2_client_d extends RedisQuery {
 
 
 	override def execute(jedisPooled: JedisPooled): Unit = {
-		val dateFilters: List[Query.Filter] = List(new Query.NumericFilter("d_yearmonthnum", 199401, 199401))
-		val dateDocuments: List[Document] = queryDocuments(jedisPooled, "date-index", filters = dateFilters, List("d_datekey"))
-
-		val d_datekeys = dateDocuments.flatMap { doc =>
-			val validDateRanges = "@lo_orderdate:[" + doc.getString("d_datekey") + " " + doc.getString("d_datekey") + "]"
-			List(validDateRanges) // return a List with the dateRange string
-		}
-		val queryString = d_datekeys.mkString(" | ")
-
 		val reducer: Reducer = Reducers.sum("revenue").as("total_revenue")
-		val aggregation = new AggregationBuilder("@lo_discount:[4 6] @lo_quantity:[26 35]" + queryString)
+		val aggregation = new AggregationBuilder("@lo_discount:[1 3] @lo_quantity:[0 24] @lo_orderdate:[19930101 19931231]")
 			.load("@lo_discount", "@lo_extendedprice")
 			.apply("@lo_discount * @lo_extendedprice", "revenue")
 			.groupBy(List.empty[String].asJavaCollection, List(reducer).asJavaCollection)

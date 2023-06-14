@@ -8,7 +8,7 @@ import helper.{RedisCommandResponse, RedisCommandResponseBuilder}
 import redis.clients.jedis.Protocol.Command
 import redis.clients.jedis.commands.ProtocolCommand
 import redis.clients.jedis.search.SearchProtocol.SearchCommand
-import redis.clients.jedis.search.aggr.*
+import redis.clients.jedis.search.aggr.{AggregationBuilder, Reducers}
 import redis.clients.jedis.search.{Document, Query, SearchResult}
 import redis.clients.jedis.{JedisPooled, Pipeline, Protocol}
 
@@ -19,17 +19,18 @@ import scala.deriving.Mirror
 import scala.jdk.CollectionConverters.*
 
 
-object Q1_3_client_d extends RedisQuery {
+object Q1_3_client_d_alternative extends RedisQuery {
 
 	/**
-	 * Original Q1.1 in SQL:
+	 * Original Q1.3 Query in SQL
 	 *
 	 * select sum(lo_extendedprice*lo_discount) as revenue
 	 * from lineorder, date
 	 * where lo_orderdate = d_datekey
-	 * and d_year = 1993
-	 * and lo_discount between 1 and 3
-	 * and lo_quantity < 25;
+	 * and d_weeknuminyear = 6
+	 * and d_year = 1994
+	 * and lo_discount between 5 and 7
+	 * and lo_quantity between 26 and 35;
 	 */
 
 
@@ -47,16 +48,12 @@ object Q1_3_client_d extends RedisQuery {
 		//println(d_datekeys)
 
 		val queryString = d_datekeys.mkString(" | ")
-
-		val reducer: Reducer = Reducers.sum("revenue").as("total_revenue")
-		val aggregation = new AggregationBuilder("@lo_discount:[5 7] @lo_quantity:[26 35]" + queryString)
-			.load("@lo_discount", "@lo_extendedprice")
-			.apply("@lo_discount * @lo_extendedprice", "revenue")
-			.groupBy(List.empty[String].asJavaCollection, List(reducer).asJavaCollection)
-			.limit(0, Integer.MAX_VALUE) // Optional, set your limit
-
-		val result: AggregationResult = jedisPooled.ftAggregate("lineorder-index", aggregation)
-		println("Revenue: " + result.getResults.get(0).get("total_revenue"))
 		
+		val response = jedisPooled.sendCommand(SearchCommand.AGGREGATE, "lineorder-index", "@lo_discount:[5 7] @lo_quantity:[26 35]" + queryString, "LOAD", "2", "@lo_discount", "@lo_extendedprice", "APPLY", "@lo_discount * @lo_extendedprice", "AS", "revenue", "GROUPBY", "0", "REDUCE", "SUM", "1", "@revenue", "AS", "total_revenue")
+
+		val startTime = System.currentTimeMillis()
+		val redisCommandResponse: RedisCommandResponse = RedisCommandResponseBuilder.buildRedisCommandResponse(response)
+		println("  (Needed " + (System.currentTimeMillis() - startTime) + "ms to deconstruct RedisCommandResponse)")
+		println("Revenue: " + redisCommandResponse.values(1))
 	}
 }

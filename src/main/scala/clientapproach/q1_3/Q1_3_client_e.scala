@@ -1,5 +1,5 @@
 package de.aljoshavieth.redisolapclient
-package clientapproach.q1_2
+package clientapproach.q1_3
 
 import clientapproach.RedisQuery
 import clientapproach.q1_1.Q1_1_client_a.queryDocuments
@@ -13,13 +13,17 @@ import redis.clients.jedis.search.{Document, Query, SearchResult}
 import redis.clients.jedis.{JedisPooled, Pipeline, Protocol}
 
 import java.nio.charset.StandardCharsets
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.WeekFields
 import java.util
+import java.util.Locale
 import scala.compiletime.{constValue, erasedValue}
 import scala.deriving.Mirror
 import scala.jdk.CollectionConverters.*
 
 
-object Q1_2_client_d extends RedisQuery {
+object Q1_3_client_e extends RedisQuery {
 
 	/**
 	 * Original Q1.1 in SQL:
@@ -34,17 +38,9 @@ object Q1_2_client_d extends RedisQuery {
 
 
 	override def execute(jedisPooled: JedisPooled): Unit = {
-		val dateFilters: List[Query.Filter] = List(new Query.NumericFilter("d_yearmonthnum", 199401, 199401))
-		val dateDocuments: List[Document] = queryDocuments(jedisPooled, "date-index", filters = dateFilters, List("d_datekey"))
-
-		val d_datekeys = dateDocuments.flatMap { doc =>
-			val validDateRanges = "@lo_orderdate:[" + doc.getString("d_datekey") + " " + doc.getString("d_datekey") + "]"
-			List(validDateRanges) // return a List with the dateRange string
-		}
-		val queryString = d_datekeys.mkString(" | ")
-
 		val reducer: Reducer = Reducers.sum("revenue").as("total_revenue")
-		val aggregation = new AggregationBuilder("@lo_discount:[4 6] @lo_quantity:[26 35]" + queryString)
+		println("range: " + getDateRangePerYearAndWeeknumber(1993, 6))
+		val aggregation = new AggregationBuilder("@lo_discount:[5 7] @lo_quantity:[26 35] @lo_orderdate:" + getDateRangePerYearAndWeeknumber(1993, 6))
 			.load("@lo_discount", "@lo_extendedprice")
 			.apply("@lo_discount * @lo_extendedprice", "revenue")
 			.groupBy(List.empty[String].asJavaCollection, List(reducer).asJavaCollection)
@@ -52,6 +48,21 @@ object Q1_2_client_d extends RedisQuery {
 
 		val result: AggregationResult = jedisPooled.ftAggregate("lineorder-index", aggregation)
 		println("Revenue: " + result.getResults.get(0).get("total_revenue"))
-		
+
+	}
+
+	/**
+	 * This method is used to build a date range String by providing a year and a weeknumber
+	 * @param year
+	 * @param weekNumber
+	 * @return a formatted String of a date Range like this: [yyyyMMdd yyyyMMdd]
+	 */
+	private def getDateRangePerYearAndWeeknumber(year: Int, weekNumber: Int): String = {
+		val firstDay = LocalDate.ofYearDay(year, weekNumber)
+			.`with`(WeekFields.of(Locale.US).dayOfWeek(), 1)
+			.plusWeeks(weekNumber - 0) // -1 because of zero-indexing
+		val lastDay = firstDay.plusDays(6)
+		val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+		"["+firstDay.format(dateFormatter) + " " + lastDay.format(dateFormatter) + "]"
 	}
 }

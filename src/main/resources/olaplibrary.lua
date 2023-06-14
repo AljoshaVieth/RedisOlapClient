@@ -64,7 +64,9 @@ local function queryFilterCriteria(keys, args)
 end
 
 
-local function runQ1_1(keys, args)
+
+
+local function runQ1_1_a(keys, args)
     local queryFilter = queryFilterCriteria(keys, args)
     local query_result = redis.call("FT.SEARCH", "lineorder-index", "@lo_discount:[1 3] @lo_quantity:[0 24]" ..queryFilter, "LIMIT", 0, 2147483647)
     local flattened = flattenTable(query_result)
@@ -82,7 +84,7 @@ local function runQ1_1(keys, args)
     return "revenue: " .. revenue
 end
 
-local function runQ1_2(keys, args)
+local function runQ1_2_a(keys, args)
     local queryFilter = queryFilterCriteria(keys, args)
     local query_result = redis.call("FT.SEARCH", "lineorder-index", "@lo_discount:[4 6] @lo_quantity:[26 35]" ..queryFilter, "LIMIT", 0, 2147483647)
     local flattened = flattenTable(query_result)
@@ -100,13 +102,11 @@ local function runQ1_2(keys, args)
             totalDocuments = totalDocuments +1
         end
     end
-    redis.log(redis.LOG_WARNING, "totalDocuemnts "..totalDocuments)
-
 
     return "revenue: " .. revenue
 end
 
-local function runQ1_1_new(keys, args)
+local function runQ1_1_b(keys, args)
     local queriedDates = redis.call("FT.SEARCH", "date-index", "@d_year:[1993 1993]", "RETURN", 1, "d_datekey", "LIMIT", 0, 2147483647)
     table.remove(queriedDates, 1) -- removing the count of results from the table
     local sum_revenue = 0
@@ -128,7 +128,30 @@ local function runQ1_1_new(keys, args)
     return sum_revenue
 end
 
-local function runQ1_1_d(keys, args)
+
+local function runQ1_2_b(keys, args)
+    local queriedDates = redis.call("FT.SEARCH", "date-index", "@d_yearmonthnum:[199401 199401]", "RETURN", 1, "d_datekey", "LIMIT", 0, 2147483647)
+    table.remove(queriedDates, 1) -- removing the count of results from the table
+    local sum_revenue = 0
+    --redis.log(redis.LOG_WARNING, _VERSION)
+    for k, v in pairs(queriedDates) do
+        if not (v[2] == nil) then
+            -- in lua 5.1 (which redis uses) there is no way to skip the element in the loop. In 5.2 this could be done with goto
+            --redis.log(redis.LOG_WARNING, v[2])
+            local lineorder_query_result = redis.call("FT.SEARCH", "lineorder-index", "@lo_discount:[4 6] @lo_quantity:[26 35]" .. "@lo_orderdate:[" .. v[2] .. " " .. v[2] .. "]", "RETURN", 2, "lo_extendedprice", "lo_discount", "LIMIT", 0, 2147483647)
+            table.remove(lineorder_query_result, 1) -- removing the count of results from the table
+            for x, y in pairs(lineorder_query_result) do
+                if not (y[2] == nil) then
+                    sum_revenue = sum_revenue + y[2] * y[4]
+                    --redis.log(redis.LOG_WARNING, sum_revenue)
+                end
+            end
+        end
+    end
+    return sum_revenue
+end
+
+local function runQ1_1_c(keys, args)
     local lo_orderdate_query_string = redis.call("GET", "yearDateIndex:1993")
     local lineorder_query_result = redis.call("FT.SEARCH", "lineorder-index", "@lo_discount:[1 3] @lo_quantity:[0 24]" ..lo_orderdate_query_string, "LIMIT", 0, 2147483647)
     local flattened = flattenTable(lineorder_query_result)
@@ -146,68 +169,41 @@ local function runQ1_1_d(keys, args)
     return "revenue: " .. revenue
 end
 
-local function runQ1_2_new(keys, args)
-    local queriedDates = redis.call("FT.SEARCH", "date-index", "@d_yearmonthnum:[199401 199401]", "RETURN", 1, "d_datekey", "LIMIT", 0, 2147483647)
-    table.remove(queriedDates, 1) -- removing the count of results from the table
-    local sum_revenue = 0
-    --redis.log(redis.LOG_WARNING, _VERSION)
-    for k, v in pairs(queriedDates) do
-        if not (v[2] == nil) then
-            -- in lua 5.1 (which redis uses) there is no way to skip the element in the loop. In 5.2 this could be done with goto
-            --redis.log(redis.LOG_WARNING, v[2])
-            local lineorder_query_result = redis.call("FT.SEARCH", "lineorder-index", "@lo_discount:[4 6] @lo_quantity:[26 35]" .. "@lo_orderdate:[" .. v[2] .. " " .. v[2] .. "]", "RETURN", 2, "lo_extendedprice", "lo_discount", "LIMIT", 0, 2147483647)
-            table.remove(lineorder_query_result, 1) -- removing the count of results from the table
-            for x, y in pairs(lineorder_query_result) do
-                if not (y[2] == nil) then
-                    sum_revenue = sum_revenue + y[2] * y[4]
-                    redis.log(redis.LOG_WARNING, sum_revenue)
-                end
-            end
-        end
-    end
-    return sum_revenue
-end
 
 local function runQ1_2_c(keys, args)
     local queriedDates = redis.call("FT.SEARCH", "date-index", "@d_yearmonthnum:[199401 199401]", "RETURN", 1, "d_datekey", "LIMIT", 0, 2147483647)
     table.remove(queriedDates, 1) -- removing the count of results from the table
-    local sum_revenue = 0
-
-    local query = ""
-
+    local sum_revenue2 = 0
+    local query2 = ""
     for k, v in pairs(queriedDates) do
         if v[2] then
-            query = query .. " @lo_orderdate:[" .. v[2] .. " " .. v[2] .. "] |"
+            query2 = query2 .. " @lo_orderdate:[" .. v[2] .. " " .. v[2] .. "] |"
         end
     end
 
-    query = string.sub(query, 1, -3) -- Remove the trailing "|"
+    query2 = string.sub(query2, 1, -3) -- Remove the trailing "|"
 
     --query = query .. " LIMIT 0 2147483647"
-    redis.log(redis.LOG_WARNING, query)
+    redis.log(redis.LOG_WARNING, "QUERY OF INTEREST...: " .. query2)
 
-    local lineorder_query_result = redis.call("FT.SEARCH", "lineorder-index", "@lo_discount:[4 6] @lo_quantity:[26 35]" ..query, "LIMIT", 0, 2147483647)
+    local lineorder_query_result = redis.call("FT.SEARCH", "lineorder-index", "@lo_discount:[4 6] @lo_quantity:[26 35]" .. query2, "LIMIT", 0, 2147483647)
     table.remove(lineorder_query_result, 1) -- removing the count of results from the table
-local totalDocuments = 0
     for x, y in pairs(lineorder_query_result) do
-
         if y[2] then
            -- redis.log(redis.LOG_WARNING, "y".." | "..y[1].." | "..y[2].." | "..y[3].." | "..y[4])
             --redis.log(redis.LOG_WARNING, "y2: "..y[2].." y4 "..y[4])
-            sum_revenue = sum_revenue + y[2] * y[4]
-            totalDocuments = totalDocuments +1
-            redis.log(redis.LOG_WARNING, sum_revenue)
-
+            sum_revenue2 = sum_revenue2 + y[2] * y[4]
+            --redis.log(redis.LOG_WARNING, sum_revenue)
         end
     end
-    redis.log(redis.LOG_WARNING, "totalDocuemnts "..totalDocuments)
-    return sum_revenue
+    --redis.log(redis.LOG_WARNING, "totalDocuemnts "..totalDocuments)
+    return "revenue: lol ".. sum_revenue2
 end
 
 
 
 
-local function runQ1_1_e(keys, args)
+local function runQ1_1_d(keys, args)
     local lo_orderdate_query_string = redis.call("GET", "yearDateIndex:1993")
     local result = redis.call("FT.AGGREGATE", "lineorder-index", "@lo_discount:[1 3] @lo_quantity:[0 24]"..lo_orderdate_query_string, "LOAD", 2, "@lo_discount", "@lo_extendedprice", "APPLY", "@lo_discount * @lo_extendedprice", "AS", "revenue", "GROUPBY", 0, "REDUCE", "SUM", 1, "@revenue", "AS", "total_revenue")
     return result
@@ -224,13 +220,13 @@ end
 redis.register_function('querySpecificDocuments', querySpecificDocuments)
 redis.register_function('queryDocuments', queryDocuments)
 redis.register_function('queryFilterCriteria', queryFilterCriteria)
-redis.register_function('runQ1_1', runQ1_1)
-redis.register_function('runQ1_2', runQ1_2)
-redis.register_function('runQ1_1_new', runQ1_1_new)
+redis.register_function('runQ1_1_a', runQ1_1_a)
+redis.register_function('runQ1_1_b', runQ1_1_b)
+redis.register_function('runQ1_1_c', runQ1_1_c)
 redis.register_function('runQ1_1_d', runQ1_1_d)
-redis.register_function('runQ1_2_new', runQ1_2_new)
+redis.register_function('runQ1_2_a', runQ1_2_a)
+redis.register_function('runQ1_2_b', runQ1_2_b)
 redis.register_function('runQ1_2_c', runQ1_2_c)
-redis.register_function('runQ1_1_e', runQ1_1_e)
 redis.register_function('runQ1_2_d', runQ1_2_d)
 
 

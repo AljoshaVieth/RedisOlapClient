@@ -8,7 +8,7 @@ import helper.{RedisCommandResponse, RedisCommandResponseBuilder}
 import redis.clients.jedis.Protocol.Command
 import redis.clients.jedis.commands.ProtocolCommand
 import redis.clients.jedis.search.SearchProtocol.SearchCommand
-import redis.clients.jedis.search.aggr.{AggregationBuilder, Reducers}
+import redis.clients.jedis.search.aggr.{AggregationBuilder, AggregationResult, Group, Reducer, Reducers}
 import redis.clients.jedis.search.{Document, Query, SearchResult}
 import redis.clients.jedis.{JedisPooled, Pipeline, Protocol}
 
@@ -36,41 +36,22 @@ object Q1_1_client_d extends RedisQuery {
 	override def execute(jedisPooled: JedisPooled): Unit = {
 		val dateFilters: List[Query.Filter] = List(new Query.NumericFilter("d_year", 1993, 1993))
 		val dateDocuments: List[Document] = queryDocuments(jedisPooled, "date-index", filters = dateFilters, List("d_datekey"))
-		//println("found date documents: " + dateDocuments.length)
-
 
 		val d_datekeys = dateDocuments.flatMap { doc =>
 			val validDateRanges = "@lo_orderdate:[" + doc.getString("d_datekey") + " " + doc.getString("d_datekey") + "]"
 			List(validDateRanges) // return a List with the dateRange string
 		}
-
-		//println(d_datekeys)
-
 		val queryString = d_datekeys.mkString(" | ")
 
-
-		/*
-		// It is not possble to user GROUPBY 0 with the aggregation builder...
-		// Construct the aggregation
-		val aggregation = new AggregationBuilder()
+		val reducer: Reducer = Reducers.sum("revenue").as("total_revenue")
+		val aggregation = new AggregationBuilder("@lo_discount:[1 3] @lo_quantity:[0 24]" + queryString)
 			.load("@lo_discount", "@lo_extendedprice")
 			.apply("@lo_discount * @lo_extendedprice", "revenue")
-			.groupBy("", Reducers.sum("revenue").as("total_revenue"))
+			.groupBy(List.empty[String].asJavaCollection, List(reducer).asJavaCollection)
 			.limit(0, Integer.MAX_VALUE) // Optional, set your limit
 
-		val res = jedisPooled.ftAggregate("lineorder-index", aggregation)
-
-		// Process your results here
-		val rows = res.getRows
-		rows.forEach { row =>
-			println(s"Revenue: ${row.get("revenue")}, Total revenue: ${row.get("total_revenue")}")
-		}
-		*/
-		val response = jedisPooled.sendCommand(SearchCommand.AGGREGATE, "lineorder-index", "@lo_discount:[1 3] @lo_quantity:[0 24]" + queryString, "LOAD", "2", "@lo_discount", "@lo_extendedprice", "APPLY", "@lo_discount * @lo_extendedprice", "AS", "revenue", "GROUPBY", "0", "REDUCE", "SUM", "1", "@revenue", "AS", "total_revenue")
-
-		val startTime = System.currentTimeMillis()
-		val redisCommandResponse: RedisCommandResponse = RedisCommandResponseBuilder.buildRedisCommandResponse(response)
-		println("  (Needed " + (System.currentTimeMillis() - startTime) + "ms to deconstruct RedisCommandResponse)")
-		println("Revenue: " + redisCommandResponse.values(1))
+		val result: AggregationResult = jedisPooled.ftAggregate("lineorder-index", aggregation)
+		println("Revenue: " + result.getResults.get(0).get("total_revenue"))
+		
 	}
 }

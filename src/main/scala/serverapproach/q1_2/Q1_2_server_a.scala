@@ -9,6 +9,6 @@ import scala.jdk.CollectionConverters.*
 
 object Q1_2_server_a extends RedisLuaQuery {
 	override def execute(jedisPooled: JedisPooled): Unit = {
-		println(jedisPooled.fcall("runQ1_2", List[String]().asJava, List("date-index", "@d_yearmonthnum:[199401 199401]", "d_datekey", "lo_orderdate").asJava))
+		println(jedisPooled.fcall("runQ1_2_a", List[String]().asJava, List("date-index", "@d_yearmonthnum:[199401 199401]", "d_datekey", "lo_orderdate").asJava))
 	}
 }
