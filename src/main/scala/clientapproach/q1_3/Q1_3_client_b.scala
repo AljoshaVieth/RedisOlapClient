@@ -16,16 +16,16 @@ import scala.jdk.CollectionConverters.*
 object Q1_3_client_b extends RedisQuery {
 
 	/**
-	 * Original Q1.2 Query in SQL
+	 * Original Q1.3 Query in SQL
 	 *
 	 * select sum(lo_extendedprice*lo_discount) as revenue
 	 * from lineorder, date
 	 * where lo_orderdate = d_datekey
-	 * and d_yearmonthnum = 199401
-	 * and lo_discount between 4 and 6
+	 * and d_weeknuminyear = 6
+	 * and d_year = 1994
+	 * and lo_discount between 5 and 7
 	 * and lo_quantity between 26 and 35;
 	 */
-
 
 	override def execute(jedisPooled: JedisPooled): Unit = {
 		val dateFilters = List(

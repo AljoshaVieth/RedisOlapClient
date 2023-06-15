@@ -13,9 +13,9 @@ import redis.clients.jedis.search.{Document, Query, SearchResult}
 import redis.clients.jedis.{JedisPooled, Pipeline, Protocol}
 
 import java.nio.charset.StandardCharsets
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.temporal.WeekFields
+import java.time.temporal.{TemporalAdjusters, WeekFields}
+import java.time.{DayOfWeek, LocalDate}
 import java.util
 import java.util.Locale
 import scala.compiletime.{constValue, erasedValue}
@@ -39,8 +39,7 @@ object Q1_3_client_e extends RedisQuery {
 
 	override def execute(jedisPooled: JedisPooled): Unit = {
 		val reducer: Reducer = Reducers.sum("revenue").as("total_revenue")
-		println("range: " + getDateRangePerYearAndWeeknumber(1993, 6))
-		val aggregation = new AggregationBuilder("@lo_discount:[5 7] @lo_quantity:[26 35] @lo_orderdate:" + getDateRangePerYearAndWeeknumber(1993, 6))
+		val aggregation = new AggregationBuilder("@lo_discount:[5 7] @lo_quantity:[26 35] @lo_orderdate:" + getDateRangePerYearAndWeeknumber(1994, 6))
 			.load("@lo_discount", "@lo_extendedprice")
 			.apply("@lo_discount * @lo_extendedprice", "revenue")
 			.groupBy(List.empty[String].asJavaCollection, List(reducer).asJavaCollection)
@@ -53,16 +52,18 @@ object Q1_3_client_e extends RedisQuery {
 
 	/**
 	 * This method is used to build a date range String by providing a year and a weeknumber
+	 * In the ssb dataset, the d_weeknuminyear field is not defined by actual weeks that start by a specific day
+	 * Week 1 is always January 1th to January 6th, no matter what weekdays these dates are
+	 *
 	 * @param year
 	 * @param weekNumber
 	 * @return a formatted String of a date Range like this: [yyyyMMdd yyyyMMdd]
 	 */
 	private def getDateRangePerYearAndWeeknumber(year: Int, weekNumber: Int): String = {
-		val firstDay = LocalDate.ofYearDay(year, weekNumber)
-			.`with`(WeekFields.of(Locale.US).dayOfWeek(), 1)
-			.plusWeeks(weekNumber - 0) // -1 because of zero-indexing
-		val lastDay = firstDay.plusDays(6)
+		val lastDayNumber = weekNumber * 7 - 1
+		val lastDay = LocalDate.ofYearDay(year, lastDayNumber)
+		val firstDay = lastDay.minusDays(6)
 		val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
-		"["+firstDay.format(dateFormatter) + " " + lastDay.format(dateFormatter) + "]"
-	}
+		"[" + firstDay.format(dateFormatter) + " " + lastDay.format(dateFormatter) + "]"
+}
 }

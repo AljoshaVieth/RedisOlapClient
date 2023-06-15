@@ -20,6 +20,7 @@ object Q1_3_client_c extends RedisQuery {
 	 * and lo_quantity between 26 and 35;
 	 */
 
+
 	override def execute(jedisPooled: JedisPooled): Unit = {
 		val dateFilters: List[Query.Filter] = List(new Query.NumericFilter("d_weeknuminyear", 6, 6), new Query.NumericFilter("d_year", 1994, 1994))
 		val dateDocuments: List[Document] = queryDocuments(jedisPooled, "date-index", filters = dateFilters, List("d_datekey"))

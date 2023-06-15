@@ -158,7 +158,7 @@ object Main {
 
 
 
-/*
+
 				// Q 2.1
 				println("\n    Q2.1\n")
 				println("Running Q2.1 ...")
@@ -176,7 +176,7 @@ object Main {
 				println("Running Q2.2 ...")
 				println("Executed in: " + calculateExecutionTime(Q2_2_client_a.execute(jedisPooled)) + "ms\n")
 
-*/
+
 	}
 
 	private def runScanVsSearchQueries(): Unit = {
