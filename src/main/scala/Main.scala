@@ -11,6 +11,8 @@ import serverapproach.q1_1.{Q1_1_server_a, Q1_1_server_b, Q1_1_server_c, Q1_1_se
 import serverapproach.q1_2.{Q1_2_server_a, Q1_2_server_b, Q1_2_server_c, Q1_2_server_d}
 
 import de.aljoshavieth.redisolapclient.scan_vs_search.ScanVsSearch_Q1_scan
+import de.aljoshavieth.redisolapclient.scanapproach.q1_1.Q1_1_scan_a
+import de.aljoshavieth.redisolapclient.scanapproach.q1_2.Q1_2_scan_a
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig
 import redis.clients.jedis.search.SearchProtocol.SearchCommand
 import redis.clients.jedis.search.{Document, Query}
@@ -32,9 +34,9 @@ object Main {
 
 	def main(args: Array[String]): Unit = {
 		configureRedis()
-
 		runClientApproachQueries()
-		runServerApproachQueries()
+		//runServerApproachQueries()
+		runScanApproachQueries()
 		//runScanVsSearchQueries()
 
 		jedisPipeline.close()
@@ -191,6 +193,30 @@ object Main {
 		println("Running Q1_scan ...")
 		println("Executed in: " + calculateExecutionTime(ScanVsSearch_Q1_scan.execute(jedisPooled, jedis)) + "ms")
 
+
+	}
+
+	private def runScanApproachQueries(): Unit = {
+		val jedis = new Jedis("localhost", 6379)
+		jedis.select(1)
+		jedis.getClient.setTimeoutInfinite()
+
+
+		println("\n----------------------------------------")
+		println("Running scan-based queries ...")
+		println("........................................")
+
+
+
+		// Q 1.1
+		println("\n    Q1.1\n")
+		println("Running Q1.1 scan_a ...")
+		println("Executed in: " + calculateExecutionTime(Q1_1_scan_a.execute(jedis)) + "ms\n")
+
+		// Q 1.2
+		println("\n    Q1.2\n")
+		println("Running Q1.2 scan_a ...")
+		println("Executed in: " + calculateExecutionTime(Q1_2_scan_a.execute(jedis)) + "ms\n")
 
 	}
 

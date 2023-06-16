@@ -39,7 +39,7 @@ object Q1_2_client_e extends RedisQuery {
 			.load("@lo_discount", "@lo_extendedprice")
 			.apply("@lo_discount * @lo_extendedprice", "revenue")
 			.groupBy(List.empty[String].asJavaCollection, List(reducer).asJavaCollection)
-			.limit(0, Integer.MAX_VALUE) // Optional, set your limit
+			.limit(0, Integer.MAX_VALUE)
 
 		val result: AggregationResult = jedisPooled.ftAggregate("lineorder-index", aggregation)
 		println("Revenue: " + result.getResults.get(0).get("total_revenue"))
