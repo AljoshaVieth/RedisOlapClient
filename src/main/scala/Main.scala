@@ -1,7 +1,7 @@
 package de.aljoshavieth.redisolapclient
 
 import clientapproach.*
-import clientapproach.q1_1.{Q1_1_client_a, Q1_1_client_b, Q1_1_client_c, Q1_1_client_d, Q1_1_client_d_alternative, Q1_1_client_e}
+import clientapproach.q1_1.{Q1_1_client_a, Q1_1_client_b, Q1_1_client_c, Q1_1_client_d, Q1_1_client_d_alternative, Q1_1_client_e, Q1_1_client_f}
 import clientapproach.q1_2.{Q1_2_client_a, Q1_2_client_b, Q1_2_client_c, Q1_2_client_d, Q1_2_client_d_alternative, Q1_2_client_e}
 import clientapproach.q1_3.{Q1_3_client_a, Q1_3_client_b, Q1_3_client_c, Q1_3_client_d, Q1_3_client_d_alternative, Q1_3_client_e}
 import clientapproach.q2_1.Q2_1_client_a
@@ -10,8 +10,9 @@ import serverapproach.LuaScriptLoader
 import serverapproach.q1_1.{Q1_1_server_a, Q1_1_server_b, Q1_1_server_c, Q1_1_server_d}
 import serverapproach.q1_2.{Q1_2_server_a, Q1_2_server_b, Q1_2_server_c, Q1_2_server_d}
 
+import de.aljoshavieth.redisolapclient.denormalizedapproach.{Q1_2_denormalized, Q2_1_denormalized, Q2_2_denormalized, Q2_3_denormalized}
 import de.aljoshavieth.redisolapclient.scan_vs_search.ScanVsSearch_Q1_scan
-import de.aljoshavieth.redisolapclient.scanapproach.q1_1.{Q1_1_scan_a, Q1_1_scan_b}
+import de.aljoshavieth.redisolapclient.scanapproach.q1_1.Q1_1_scan_a
 import de.aljoshavieth.redisolapclient.scanapproach.q1_2.Q1_2_scan_a
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig
 import redis.clients.jedis.search.SearchProtocol.SearchCommand
@@ -27,22 +28,56 @@ import scala.jdk.CollectionConverters.*
 
 object Main {
 
-	private val jedisURI = new URI("redis://localhost:6379")
+	private val jedisURI = new URI("redis://localhost:6382")
 	private val jedisPooled: JedisPooled = new JedisPooled(jedisURI, Integer.MAX_VALUE)
 	private val jedisPipeline: Pipeline = jedisPooled.pipelined()
 
 
 	def main(args: Array[String]): Unit = {
 		configureRedis()
+		runDenormalizedApproachQueries()
 		//runClientApproachQueries()
 		//runServerApproachQueries()
-		runScanApproachQueries()
+		//runScanApproachQueries()
 		//runScanVsSearchQueries()
 
 		jedisPipeline.close()
 		jedisPooled.close()
 	}
 
+	private def runDenormalizedApproachQueries(): Unit = {
+		println("\n----------------------------------------")
+		println("Running denormalized-based queries ...")
+		println("........................................")
+
+
+
+		// Q 1.1
+		/*
+		println("\n    Q1.2\n")
+		println("Running Q1.2 client_f ...")
+		println("Executed in: " + calculateExecutionTime(Q1_2_denormalized.execute(jedisPooled)) + "ms\n")
+		*/
+
+		// Q 2.1
+
+		println("\n    Q2.1\n")
+		println("Running Q2.1 denormalized ...")
+		println("Executed in: " + calculateExecutionTime(Q2_1_denormalized.execute(jedisPooled)) + "ms\n")
+
+
+
+		// Q 2.2
+		println("\n    Q2.2\n")
+		println("Running Q2.2 denormalized ...")
+		println("Executed in: " + calculateExecutionTime(Q2_2_denormalized.execute(jedisPooled)) + "ms\n")
+
+
+		// Q 2.3
+		println("\n    Q2.3\n")
+		println("Running Q2.3 denormalized ...")
+		println("Executed in: " + calculateExecutionTime(Q2_3_denormalized.execute(jedisPooled)) + "ms\n")
+	}
 	private def runServerApproachQueries(): Unit = {
 		println("\n----------------------------------------")
 		println("Running server-based queries ...")
@@ -58,11 +93,13 @@ object Main {
 		println("Running Q1.1 server_b ...")
 		println("Executed in: " + calculateExecutionTime(Q1_1_server_b.execute(jedisPooled)) + "ms\n")
 
+		/*
 		println("Running Q1_1 server_c ...")
 		println("Executed in: " + calculateExecutionTime(Q1_1_server_c.execute(jedisPooled)) + "ms\n")
 
 		println("Running Q1.1 server_d ...")
 		println("Executed in: " + calculateExecutionTime(Q1_1_server_d.execute(jedisPooled)) + "ms\n")
+		*/
 
 		// Q 1.2
 		println("\n    Q1.2\n")
@@ -71,12 +108,14 @@ object Main {
 
 		println("Running Q1.2 server_b ...")
 		println("Executed in: " + calculateExecutionTime(Q1_2_server_b.execute(jedisPooled)) + "ms\n")
+		/*
 
 		println("Running Q1.2 server_c ...")
 		println("Executed in: " + calculateExecutionTime(Q1_2_server_c.execute(jedisPooled)) + "ms\n")
 
 		println("Running Q1.2 server_d ...")
 		println("Executed in: " + calculateExecutionTime(Q1_2_server_d.execute(jedisPooled)) + "ms\n")
+		*/
 
 
 		//println("querySpecificDocuments: " + jedisPooled.fcall("querySpecificDocuments", List[String]().asJava, List[String]().asJava))
@@ -203,7 +242,7 @@ object Main {
 		// Q 1.1
 		println("\n    Q1.1_b\n")
 		println("Running Q1.1 scan_b ...")
-		println("Executed in: " + calculateExecutionTime(Q1_1_scan_b.execute(jedis)) + "ms\n")
+		println("Executed in: " + calculateExecutionTime(Q1_1_scan_a.execute(jedis)) + "ms\n")
 
 /*
 		println("\n----------------------------------------")
