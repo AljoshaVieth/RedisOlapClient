@@ -19,7 +19,7 @@ import scala.deriving.Mirror
 import scala.jdk.CollectionConverters.*
 
 
-object Q1_2_denormalized extends RedisearchQuery {
+object Q1_1_denormalized extends RedisearchQuery {
 
 	/**
 	 * Original Query in SQL:
@@ -27,15 +27,16 @@ object Q1_2_denormalized extends RedisearchQuery {
 	 * select sum(lo_extendedprice*lo_discount) as revenue
 	 * from lineorder, date
 	 * where lo_orderdate = d_datekey
-	 * and d_yearmonthnum = 199401
-	 * and lo_discount between 4 and 6
-	 * and lo_quantity between 26 and 35;
+	 * and d_year = 1993
+	 * and lo_discount between 1 and 3
+	 * and lo_quantity < 25:
+	 *
 	 */
 
 
 	override def execute(jedisPooled: JedisPooled): String = {
 		val reducer: Reducer = Reducers.sum("revenue").as("total_revenue")
-		val aggregation = new AggregationBuilder("@lo_discount:[4 6] @lo_quantity:[26 35] @lo_orderdate:[19940101 19940131]")
+		val aggregation = new AggregationBuilder("@lo_discount:[1 3] @lo_quantity:[0 24] @d_year:[1993 1993]")
 			.load("@lo_discount", "@lo_extendedprice")
 			.apply("@lo_discount * @lo_extendedprice", "revenue")
 			.groupBy(List.empty[String].asJavaCollection, List(reducer).asJavaCollection)

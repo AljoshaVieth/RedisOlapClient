@@ -50,17 +50,26 @@ object Main {
 		println("Running denormalized-based queries ...")
 		println("........................................")
 
-/*
+
 
 		// Q 1.1
-		/*
+		println("\n    Q1.1\n")
+		println("Running Q1.1 denormalized ...")
+		println("Executed in: " + calculateExecutionTime(Q1_1_denormalized.execute(jedisPooled)) + "ms\n")
+
+		// Q 1.2
 		println("\n    Q1.2\n")
-		println("Running Q1.2 client_f ...")
+		println("Running Q1.2 denormalized ...")
 		println("Executed in: " + calculateExecutionTime(Q1_2_denormalized.execute(jedisPooled)) + "ms\n")
-		*/
+
+		// Q 1.3
+		println("\n    Q1.3\n")
+		println("Running Q1.3 denormalized ...")
+		println("Executed in: " + calculateExecutionTime(Q1_3_denormalized.execute(jedisPooled)) + "ms\n")
+
+		/*
 
 		// Q 2.1
-
 		println("\n    Q2.1\n")
 		println("Running Q2.1 denormalized ...")
 		println("Executed in: " + calculateExecutionTime(Q2_1_denormalized.execute(jedisPooled)) + "ms\n")
@@ -100,7 +109,7 @@ object Main {
 		println("Running Q3.4 denormalized ...")
 		println("Executed in: " + calculateExecutionTime(Q3_4_denormalized.execute(jedisPooled)) + "ms\n")
 
-*/
+
 		// Q 4.1
 		println("\n    Q4.1\n")
 		println("Running Q4.1 denormalized ...")
@@ -115,6 +124,7 @@ object Main {
 		println("\n    Q4.3\n")
 		println("Running Q4.3 denormalized ...")
 		println("Executed in: " + calculateExecutionTime(Q4_3_denormalized.execute(jedisPooled)) + "ms\n")
+*/
 	}
 	private def runServerApproachQueries(): Unit = {
 		println("\n----------------------------------------")
