@@ -1,19 +1,19 @@
 package de.aljoshavieth.redisolapclient
 
 import clientapproach.*
-import clientapproach.q1_1.{Q1_1_client_a, Q1_1_client_b, Q1_1_client_c, Q1_1_client_d, Q1_1_client_d_alternative, Q1_1_client_e, Q1_1_client_f}
-import clientapproach.q1_2.{Q1_2_client_a, Q1_2_client_b, Q1_2_client_c, Q1_2_client_d, Q1_2_client_d_alternative, Q1_2_client_e}
-import clientapproach.q1_3.{Q1_3_client_a, Q1_3_client_b, Q1_3_client_c, Q1_3_client_d, Q1_3_client_d_alternative, Q1_3_client_e}
+import clientapproach.q1_1.*
+import clientapproach.q1_2.*
+import clientapproach.q1_3.*
 import clientapproach.q2_1.Q2_1_client_a
 import clientapproach.q2_2.Q2_2_client_a
+import denormalizedapproach.*
+import scan_vs_search.ScanVsSearch_Q1_scan
+import scanapproach.q1_1.Q1_1_scan_a
+import scanapproach.q1_2.Q1_2_scan_a
 import serverapproach.LuaScriptLoader
 import serverapproach.q1_1.{Q1_1_server_a, Q1_1_server_b, Q1_1_server_c, Q1_1_server_d}
 import serverapproach.q1_2.{Q1_2_server_a, Q1_2_server_b, Q1_2_server_c, Q1_2_server_d}
 
-import de.aljoshavieth.redisolapclient.denormalizedapproach.{Q1_2_denormalized, Q2_1_denormalized, Q2_2_denormalized, Q2_3_denormalized, Q3_1_denormalized, Q3_2_denormalized, Q3_3_denormalized, Q3_4_denormalized}
-import de.aljoshavieth.redisolapclient.scan_vs_search.ScanVsSearch_Q1_scan
-import de.aljoshavieth.redisolapclient.scanapproach.q1_1.Q1_1_scan_a
-import de.aljoshavieth.redisolapclient.scanapproach.q1_2.Q1_2_scan_a
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig
 import redis.clients.jedis.search.SearchProtocol.SearchCommand
 import redis.clients.jedis.search.{Document, Query}
@@ -94,11 +94,27 @@ object Main {
 		println("\n    Q3.3\n")
 		println("Running Q3.3 denormalized ...")
 		println("Executed in: " + calculateExecutionTime(Q3_3_denormalized.execute(jedisPooled)) + "ms\n")
-*/
+
 		// Q 3.4
 		println("\n    Q3.4\n")
 		println("Running Q3.4 denormalized ...")
 		println("Executed in: " + calculateExecutionTime(Q3_4_denormalized.execute(jedisPooled)) + "ms\n")
+
+*/
+		// Q 4.1
+		println("\n    Q4.1\n")
+		println("Running Q4.1 denormalized ...")
+		println("Executed in: " + calculateExecutionTime(Q4_1_denormalized.execute(jedisPooled)) + "ms\n")
+
+		// Q 4.2
+		println("\n    Q4.2\n")
+		println("Running Q4.2 denormalized ...")
+		println("Executed in: " + calculateExecutionTime(Q4_2_denormalized.execute(jedisPooled)) + "ms\n")
+
+		// Q 4.3
+		println("\n    Q4.3\n")
+		println("Running Q4.3 denormalized ...")
+		println("Executed in: " + calculateExecutionTime(Q4_3_denormalized.execute(jedisPooled)) + "ms\n")
 	}
 	private def runServerApproachQueries(): Unit = {
 		println("\n----------------------------------------")
