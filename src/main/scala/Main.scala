@@ -10,7 +10,7 @@ import serverapproach.LuaScriptLoader
 import serverapproach.q1_1.{Q1_1_server_a, Q1_1_server_b, Q1_1_server_c, Q1_1_server_d}
 import serverapproach.q1_2.{Q1_2_server_a, Q1_2_server_b, Q1_2_server_c, Q1_2_server_d}
 
-import de.aljoshavieth.redisolapclient.denormalizedapproach.{Q1_2_denormalized, Q2_1_denormalized, Q2_2_denormalized, Q2_3_denormalized, Q3_1_denormalized}
+import de.aljoshavieth.redisolapclient.denormalizedapproach.{Q1_2_denormalized, Q2_1_denormalized, Q2_2_denormalized, Q2_3_denormalized, Q3_1_denormalized, Q3_2_denormalized, Q3_3_denormalized, Q3_4_denormalized}
 import de.aljoshavieth.redisolapclient.scan_vs_search.ScanVsSearch_Q1_scan
 import de.aljoshavieth.redisolapclient.scanapproach.q1_1.Q1_1_scan_a
 import de.aljoshavieth.redisolapclient.scanapproach.q1_2.Q1_2_scan_a
@@ -50,7 +50,7 @@ object Main {
 		println("Running denormalized-based queries ...")
 		println("........................................")
 
-
+/*
 
 		// Q 1.1
 		/*
@@ -84,6 +84,21 @@ object Main {
 		println("\n    Q3.1\n")
 		println("Running Q3.1 denormalized ...")
 		println("Executed in: " + calculateExecutionTime(Q3_1_denormalized.execute(jedisPooled)) + "ms\n")
+
+		// Q 3.2
+		println("\n    Q3.2\n")
+		println("Running Q3.2 denormalized ...")
+		println("Executed in: " + calculateExecutionTime(Q3_2_denormalized.execute(jedisPooled)) + "ms\n")
+
+		// Q 3.3
+		println("\n    Q3.3\n")
+		println("Running Q3.3 denormalized ...")
+		println("Executed in: " + calculateExecutionTime(Q3_3_denormalized.execute(jedisPooled)) + "ms\n")
+*/
+		// Q 3.4
+		println("\n    Q3.4\n")
+		println("Running Q3.4 denormalized ...")
+		println("Executed in: " + calculateExecutionTime(Q3_4_denormalized.execute(jedisPooled)) + "ms\n")
 	}
 	private def runServerApproachQueries(): Unit = {
 		println("\n----------------------------------------")
