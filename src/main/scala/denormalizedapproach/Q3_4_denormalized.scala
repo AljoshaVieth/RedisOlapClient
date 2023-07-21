@@ -39,7 +39,9 @@ object Q3_4_denormalized extends RedisearchQuery {
 	 */
 
 
-	override def execute(jedisPooled: JedisPooled): String = {
+	override def execute(jedisPooled: JedisPooled): AggregationResult = {
+		val startTime = System.currentTimeMillis()
+
 		val reducer: Reducer = Reducers.sum("lo_revenue").as("revenue")
 		val aggregation = new AggregationBuilder(
 				"@c_city:{UNITED KI1 | UNITED KI5}" +
@@ -50,13 +52,19 @@ object Q3_4_denormalized extends RedisearchQuery {
 			.sortBy(SortedField.asc("@d_year"), SortedField.desc("@revenue"))
 			.limit(0, Integer.MAX_VALUE)
 
-		val result: AggregationResult = jedisPooled.ftAggregate("denormalized-index", aggregation)
-		println(result.getTotalResults + " results:")
-		println(result.getResults.forEach(x => println(x)))
-		""
+		val result = jedisPooled.ftAggregate("denormalized-index", aggregation)
+		println("Executed in " + (System.currentTimeMillis() - startTime) + " ms")
+		result
 	}
 
 	override def isCorrect(result: String): Boolean = {
-		result.equals("77971813568")
+		readTextFileIntoString("src\\main\\resources\\formattedresults\\q_3_4_result.txt").equals(result)
+	}
+
+	override def toComparableString(results: AggregationResult): String = {
+		val strings = results.getResults.asScala.map { result =>
+			"" + result.get("c_city") + " | " + result.get("s_city") + " | " + result.get("d_year") + " | " + result.get("revenue")
+		}
+		strings.mkString("\n")
 	}
 }

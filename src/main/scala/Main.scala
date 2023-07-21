@@ -16,6 +16,7 @@ import serverapproach.q1_2.{Q1_2_server_a, Q1_2_server_b, Q1_2_server_c, Q1_2_se
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig
 import redis.clients.jedis.search.SearchProtocol.SearchCommand
+import redis.clients.jedis.search.aggr.AggregationResult
 import redis.clients.jedis.search.{Document, Query}
 import redis.clients.jedis.{Jedis, JedisPool, JedisPooled, Pipeline}
 
@@ -51,80 +52,97 @@ object Main {
 		println("........................................")
 
 
+		var result: AggregationResult = null
+		var formattedResult: String = ""
 
 		// Q 1.1
-		println("\n    Q1.1\n")
-		println("Running Q1.1 denormalized ...")
-		println("Executed in: " + calculateExecutionTime(Q1_1_denormalized.execute(jedisPooled)) + "ms\n")
+		println("\nRunning Q1.1 denormalized ...")
+		result = Q1_1_denormalized.execute(jedisPooled)
+		formattedResult = Q1_1_denormalized.toComparableString(result)
+		printResultIsCorrect(Q1_1_denormalized.isCorrect(formattedResult))
 
 		// Q 1.2
-		println("\n    Q1.2\n")
-		println("Running Q1.2 denormalized ...")
-		println("Executed in: " + calculateExecutionTime(Q1_2_denormalized.execute(jedisPooled)) + "ms\n")
+		println("\nRunning Q1.2 denormalized ...")
+		result = Q1_2_denormalized.execute(jedisPooled)
+		formattedResult = Q1_2_denormalized.toComparableString(result)
+		printResultIsCorrect(Q1_2_denormalized.isCorrect(formattedResult))
 
 		// Q 1.3
-		println("\n    Q1.3\n")
-		println("Running Q1.3 denormalized ...")
-		println("Executed in: " + calculateExecutionTime(Q1_3_denormalized.execute(jedisPooled)) + "ms\n")
+		println("\nRunning Q1.3 denormalized ...")
+		result = Q1_3_denormalized.execute(jedisPooled)
+		formattedResult = Q1_3_denormalized.toComparableString(result)
+		printResultIsCorrect(Q1_3_denormalized.isCorrect(formattedResult))
 
-		/*
 
 		// Q 2.1
-		println("\n    Q2.1\n")
-		println("Running Q2.1 denormalized ...")
-		println("Executed in: " + calculateExecutionTime(Q2_1_denormalized.execute(jedisPooled)) + "ms\n")
-
-
+		println("\nRunning Q2.1 denormalized ...")
+		result = Q2_1_denormalized.execute(jedisPooled)
+		formattedResult = Q2_1_denormalized.toComparableString(result)
+		printResultIsCorrect(Q2_1_denormalized.isCorrect(formattedResult))
 
 		// Q 2.2
-		/*
-		println("\n    Q2.2\n")
-		println("Running Q2.2 denormalized ...")
-		println("Executed in: " + calculateExecutionTime(Q2_2_denormalized.execute(jedisPooled)) + "ms\n")
-		*/
-
+		println("\nRunning Q2.2 denormalized ...")
+		result = Q2_2_denormalized.execute(jedisPooled)
+		formattedResult = Q2_2_denormalized.toComparableString(result)
+		printResultIsCorrect(Q2_2_denormalized.isCorrect(formattedResult))
 
 		// Q 2.3
-		println("\n    Q2.3\n")
-		println("Running Q2.3 denormalized ...")
-		println("Executed in: " + calculateExecutionTime(Q2_3_denormalized.execute(jedisPooled)) + "ms\n")
+		println("\nRunning Q2.3 denormalized ...")
+		result = Q2_3_denormalized.execute(jedisPooled)
+		formattedResult = Q2_3_denormalized.toComparableString(result)
+		printResultIsCorrect(Q2_3_denormalized.isCorrect(formattedResult))
+
 
 		// Q 3.1
-		println("\n    Q3.1\n")
-		println("Running Q3.1 denormalized ...")
-		println("Executed in: " + calculateExecutionTime(Q3_1_denormalized.execute(jedisPooled)) + "ms\n")
+		println("\nRunning Q3.1 denormalized ...")
+		result = Q3_1_denormalized.execute(jedisPooled)
+		formattedResult = Q3_1_denormalized.toComparableString(result)
+		printResultIsCorrect(Q3_1_denormalized.isCorrect(formattedResult))
 
 		// Q 3.2
-		println("\n    Q3.2\n")
-		println("Running Q3.2 denormalized ...")
-		println("Executed in: " + calculateExecutionTime(Q3_2_denormalized.execute(jedisPooled)) + "ms\n")
+		println("\nRunning Q3.2 denormalized ...")
+		result = Q3_2_denormalized.execute(jedisPooled)
+		formattedResult = Q3_2_denormalized.toComparableString(result)
+		printResultIsCorrect(Q3_2_denormalized.isCorrect(formattedResult))
 
 		// Q 3.3
-		println("\n    Q3.3\n")
-		println("Running Q3.3 denormalized ...")
-		println("Executed in: " + calculateExecutionTime(Q3_3_denormalized.execute(jedisPooled)) + "ms\n")
+		println("\nRunning Q3.3 denormalized ...")
+		result = Q3_3_denormalized.execute(jedisPooled)
+		formattedResult = Q3_3_denormalized.toComparableString(result)
+		printResultIsCorrect(Q3_3_denormalized.isCorrect(formattedResult))
 
 		// Q 3.4
-		println("\n    Q3.4\n")
-		println("Running Q3.4 denormalized ...")
-		println("Executed in: " + calculateExecutionTime(Q3_4_denormalized.execute(jedisPooled)) + "ms\n")
+		println("\nRunning Q3.4 denormalized ...")
+		result = Q3_4_denormalized.execute(jedisPooled)
+		formattedResult = Q3_4_denormalized.toComparableString(result)
+		printResultIsCorrect(Q3_4_denormalized.isCorrect(formattedResult))
 
 
 		// Q 4.1
-		println("\n    Q4.1\n")
-		println("Running Q4.1 denormalized ...")
-		println("Executed in: " + calculateExecutionTime(Q4_1_denormalized.execute(jedisPooled)) + "ms\n")
+		println("\nRunning Q4.1 denormalized ...")
+		result = Q4_1_denormalized.execute(jedisPooled)
+		formattedResult = Q4_1_denormalized.toComparableString(result)
+		printResultIsCorrect(Q4_1_denormalized.isCorrect(formattedResult))
 
 		// Q 4.2
-		println("\n    Q4.2\n")
-		println("Running Q4.2 denormalized ...")
-		println("Executed in: " + calculateExecutionTime(Q4_2_denormalized.execute(jedisPooled)) + "ms\n")
+		println("\nRunning Q4.2 denormalized ...")
+		result = Q4_2_denormalized.execute(jedisPooled)
+		formattedResult = Q4_2_denormalized.toComparableString(result)
+		printResultIsCorrect(Q4_2_denormalized.isCorrect(formattedResult))
 
 		// Q 4.3
-		println("\n    Q4.3\n")
-		println("Running Q4.3 denormalized ...")
-		println("Executed in: " + calculateExecutionTime(Q4_3_denormalized.execute(jedisPooled)) + "ms\n")
-*/
+		println("\nRunning Q4.3 denormalized ...")
+		result = Q4_3_denormalized.execute(jedisPooled)
+		formattedResult = Q4_3_denormalized.toComparableString(result)
+		printResultIsCorrect(Q4_3_denormalized.isCorrect(formattedResult))
+	}
+
+	private def printResultIsCorrect(boolean: Boolean): Unit = {
+		if (boolean) {
+			println("Result is correct!")
+		} else {
+			println("Result is incorrect!!!")
+		}
 	}
 	private def runServerApproachQueries(): Unit = {
 		println("\n----------------------------------------")

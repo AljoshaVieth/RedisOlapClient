@@ -34,7 +34,10 @@ object Q1_1_denormalized extends RedisearchQuery {
 	 */
 
 
-	override def execute(jedisPooled: JedisPooled): String = {
+	override def execute(jedisPooled: JedisPooled): AggregationResult = {
+		val startTime = System.currentTimeMillis()
+
+		System.currentTimeMillis() - startTime
 		val reducer: Reducer = Reducers.sum("revenue").as("total_revenue")
 		val aggregation = new AggregationBuilder("@lo_discount:[1 3] @lo_quantity:[0 24] @d_year:[1993 1993]")
 			.load("@lo_discount", "@lo_extendedprice")
@@ -42,12 +45,17 @@ object Q1_1_denormalized extends RedisearchQuery {
 			.groupBy(List.empty[String].asJavaCollection, List(reducer).asJavaCollection)
 			.limit(0, Integer.MAX_VALUE)
 
-		val result: AggregationResult = jedisPooled.ftAggregate("denormalized-index", aggregation)
-		println(result.getResults.get(0).get("total_revenue").toString)
-		result.getResults.get(0).get("total_revenue").toString
+		val result = jedisPooled.ftAggregate("denormalized-index", aggregation)
+		println("Executed in " + (System.currentTimeMillis() - startTime) + " ms")
+		result
 	}
 
 	override def isCorrect(result: String): Boolean = {
-		result.equals("77971813568")
+		readTextFileIntoString("src\\main\\resources\\formattedresults\\q_1_1_result.txt").equals(result)
+	}
+
+
+	override def toComparableString(results: AggregationResult): String = {
+		results.getResults.get(0).get("total_revenue").toString
 	}
 }
