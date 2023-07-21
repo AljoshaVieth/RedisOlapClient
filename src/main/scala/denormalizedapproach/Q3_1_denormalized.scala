@@ -37,28 +37,24 @@ object Q3_1_denormalized extends RedisearchQuery {
 	 * group by c_nation, s_nation, d_year
 	 * order by d_year asc, revenue desc;
 	 *
+	 *
 	 */
 
 
 	override def execute(jedisPooled: JedisPooled): String = {
 		val reducer: Reducer = Reducers.sum("lo_revenue").as("revenue")
 		val aggregation = new AggregationBuilder(
-			"@p_brand1:{MFGR\\\\#2221}" +
-				" @c_region:{ASIA}" +
+				"@c_region:{ASIA}" +
 				" @s_region:{ASIA}" +
 				" @d_year:[1992 1997]")
 			.load("c_nation", "s_nation", "d_year", "lo_revenue")
-			.groupBy(List("c_nation", "s_nation", "d_year").asJavaCollection, List(reducer).asJavaCollection)
-			.apply("@lo_discount * @lo_extendedprice", "revenue")
+			.groupBy(List("@c_nation", "@s_nation", "@d_year").asJavaCollection, List(reducer).asJavaCollection)
 			.sortBy(SortedField.asc("@d_year"), SortedField.desc("@revenue"))
 			.limit(0, Integer.MAX_VALUE)
 
 		val result: AggregationResult = jedisPooled.ftAggregate("denormalized-index", aggregation)
-		result.getResults.get(0).keySet().forEach(println)
-		//result.getResults.get(0).entrySet().forEach((x,y) => println(x.toString))
-		//println(result.getResults())
-
-		//result.getResults.get(0).get("total_revenue").toString
+		println(result.getTotalResults + " results:")
+		println(result.getResults.forEach(x => println(x)))
 		""
 	}
 
