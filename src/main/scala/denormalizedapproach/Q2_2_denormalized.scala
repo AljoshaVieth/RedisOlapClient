@@ -40,15 +40,10 @@ object Q2_2_denormalized extends RedisearchQuery {
 	override def execute(jedisPooled: JedisPooled): String = {
 		val reducer: Reducer = Reducers.sum("lo_revenue").as("total_revenue")
 		val aggregation = new AggregationBuilder(
-			"@p_brand1:{MFGR\\#2221}" +
-				" @p_brand1:{MFGR\\#2222}" +
-				" @p_brand1:{MFGR\\#2223}" +
-				" @p_brand1:{MFGR\\#2224}" +
-				" @p_brand1:{MFGR\\#2225}" +
-				" @p_brand1:{MFGR\\#2226}" +
-				" @p_brand1:{MFGR\\#2227}" +
-				" @p_brand1:{MFGR\\#2228}" +
-				" @s_region:{ASIA}") //TODO: Check if there is a better way to use a range
+			"@s_region:{ASIA} @p_brand1:{MFGR\\#2221 | MFGR\\#2222 | MFGR\\#2223 | MFGR\\#2224 | MFGR\\#2225 | MFGR\\#2226 | MFGR\\#2227 | MFGR\\#2228}"
+		)
+
+			//TODO: Check if there is a better way to use a range
 			.load("lo_revenue", "d_year", "p_brand1")
 			.groupBy(List("@d_year", "@p_brand1").asJavaCollection, List(reducer).asJavaCollection)
 			.sortBy(SortedField.asc("@d_year"), SortedField.asc("@p_brand1"))
