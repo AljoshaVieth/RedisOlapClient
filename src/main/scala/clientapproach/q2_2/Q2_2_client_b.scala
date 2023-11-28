@@ -1,7 +1,7 @@
 package de.aljoshavieth.redisolapclient
-package clientapproach.q2_1
+package clientapproach.q2_2
 
-import clientapproach.RedisQuery
+import clientapproach.{GroupByHelper, RedisQuery}
 
 import redis.clients.jedis.JedisPooled
 import redis.clients.jedis.search.{Document, Query}
@@ -17,14 +17,14 @@ import scala.util.chaining.scalaUtilChainingOps
  * where lo_orderdate = d_datekey
  * and lo_partkey = p_partkey
  * and lo_suppkey = s_suppkey
- * and p_category = 'MFGR#12'
- * and s_region = 'AMERICA'
+ * and p_brand1 between 'MFGR#2221' and 'MFGR#2228'
+ * and s_region = 'ASIA'
  * group by d_year, p_brand1
  * order by d_year, p_brand1;
  */
-object Q2_1_client_c extends RedisQuery {
+object Q2_2_client_b extends RedisQuery {
 	override def execute(jedisPooled: JedisPooled): Unit = {
-		val partQuery: Query = new Query("@p_category:{MFGR\\#12}")
+		val partQuery: Query = new Query("@p_brand1:{MFGR\\#2221 | MFGR\\#2222 | MFGR\\#2223 | MFGR\\#2224 | MFGR\\#2225 | MFGR\\#2226 | MFGR\\#2227 | MFGR\\#2228}")
 		val partDocuments: List[Document] = queryDocuments(jedisPooled, "part-index", partQuery, returnFields = List("p_brand1", "p_partkey"))
 
 		val validPartKeys = partDocuments.flatMap { doc =>
@@ -35,7 +35,7 @@ object Q2_1_client_c extends RedisQuery {
 		val validPartKeysQuery = validPartKeys.mkString(" | ")
 
 
-		val supplierQuery: Query = new Query("@s_region:{AMERICA}")
+		val supplierQuery: Query = new Query("@s_region:{ASIA}")
 		val supplierDocuments: List[Document] = queryDocuments(jedisPooled, "supplier-index", supplierQuery, returnFields = List("s_suppkey"))
 
 		val validSuppkeys = supplierDocuments.flatMap { doc =>
@@ -60,8 +60,10 @@ object Q2_1_client_c extends RedisQuery {
 		val relevantLineorderDocuments = queryDocuments(jedisPooled, "lineorder-index", query = Query(completeQuery), returnFields = List("lo_revenue", "lo_orderdate", "lo_partkey", "lo_suppkey"))
 
 
-
-		val grouped: Map[(String, String), List[Document]] = relevantLineorderDocuments.groupBy(doc => (doc.getString("d_year"), doc.getString("p_brand1")))
+		// Replace lo_partkey and lo_orderdate with proper p_brand1 and d_year
+		val updatedLineorderDocuments = GroupByHelper.updateDocuments(partDocuments, dateDocuments, relevantLineorderDocuments)
+		
+		val grouped: Map[(String, String), List[Document]] = updatedLineorderDocuments.groupBy(doc => (doc.getString("d_year"), doc.getString("p_brand1")))
 
 
 		val result: List[((String, String), Long)] = grouped.view.mapValues(docs => docs.map(_.getString("lo_revenue").toLong).sum).toList.sortBy(_._1)

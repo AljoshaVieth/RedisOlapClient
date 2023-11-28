@@ -38,13 +38,13 @@ object Q1_1_client_c extends RedisQuery {
 		//println(d_datekeys)
 
 		val queryString = d_datekeys.mkString(" | ")
-		//println(queryString)
+		println(queryString)
 		val query = new Query(queryString)
 		val lineorderFilters = List(
 			new Query.NumericFilter("lo_discount", 1, 3),
 			new Query.NumericFilter("lo_quantity", 0, 24) // This is not quite correct, since it is assumed that quantity always >= 0 TODO: This could probably fixed when sending the command
 		)
-		val relevantLineOrderDocuments = queryDocuments(jedisPooled, "lineorder-index", query = query, filters = lineorderFilters, List("lo_orderdate", "lo_extendedprice", "lo_discount"))
+		val relevantLineOrderDocuments = queryDocuments(jedisPooled, "lineorder-index", query = query, filters = lineorderFilters, List("lo_extendedprice", "lo_discount"))
 		//println("relevant lineorder documents: " + relevantLineOrderDocuments.length)
 		val revenue = relevantLineOrderDocuments.map(doc => doc.getString("lo_extendedprice").toLong * doc.getString("lo_discount").toLong).sum // The usage of Long is crucial, since the result > Integer MAX
 		println("Revenue: " + revenue)

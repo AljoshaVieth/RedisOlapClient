@@ -60,7 +60,7 @@ object Q4_3_denormalized extends RedisearchQuery {
 		result	}
 
 	override def isCorrect(result: String): Boolean = {
-		readTextFileIntoString("src\\main\\resources\\formattedresults\\q_4_3_result.txt").equals(result)
+		readTextFileIntoString("src\\main\\resources\\scale-1\\formattedresults\\q_4_3_result.txt").equals(result)
 	}
 
 	override def toComparableString(results: AggregationResult): String = {

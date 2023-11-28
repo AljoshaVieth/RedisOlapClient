@@ -41,7 +41,7 @@ local function splitStringIntoArray(string, pattern)
 end
 
 
--- This function is used to extract values of one specific field of queryDocuments
+-- This function is used to perform a RediSearch query and build part of a new query-string based on the results
 -- args[1] = index-name
 -- args[2] = query
 -- args[3] = the field to return
@@ -50,10 +50,10 @@ local function queryFilterCriteria(keys, args)
     local query_result = redis.call("FT.SEARCH", args[1], args[2], "RETURN", 1, args[3], "LIMIT", 0, 2147483647) -- setting the limit to highest 32-bit int
     local result = ""
     local flattened = flattenTable(query_result)
-    local uniqueDocuments = 0
+    --local uniqueDocuments = 0
     for i = 1, #flattened do
         if flattened[i] == args[3] then
-            uniqueDocuments = uniqueDocuments + 1
+            --uniqueDocuments = uniqueDocuments + 1
             --table.insert(result, flattened[i+1])
             result = result .. "@" .. args[4] .. ":[" .. flattened[i + 1] .. " " .. flattened[i + 1] .. "] | "
             -- build search string for lineorder...
@@ -67,12 +67,15 @@ end
 
 
 local function runQ1_1_a(keys, args)
+    -- Apply additional query filters based on provided arguments.
     local queryFilter = queryFilterCriteria(keys, args)
+    -- Search in 'lineorder-index' with specified discount & quantity ranges and the queryFilter
     local query_result = redis.call("FT.SEARCH", "lineorder-index", "@lo_discount:[1 3] @lo_quantity:[0 24]" ..queryFilter, "LIMIT", 0, 2147483647)
     local flattened = flattenTable(query_result)
     local currentLoExtendedPrice = 0
     local currentLoDiscount = 0
     local revenue = 0
+    -- Calculate revenue by iterating over flattened results.
     for i = 1, #flattened do
         if flattened[i] == "lo_extendedprice" then
             currentLoExtendedPrice = flattened[i + 1]

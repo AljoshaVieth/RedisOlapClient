@@ -10,12 +10,12 @@ import scala.jdk.CollectionConverters.*
  */
 object FormatPostgresResults {
 	def main(args: Array[String]): Unit = {
-		val dir = "src/main/resources/postgresresults"
-		val outputDir = "src/main/resources/formattedresults/"
+		val dir = "src/main/resources/scale-4/postgresresults"
+		val outputDir = "src/main/resources/scale-4/formattedresults/"
 
 		val files = Files.list(Paths.get(dir)).iterator().asScala
 		files.filter(_.toString.endsWith(".txt")).foreach { path =>
-			val relativePath = path.toString.replaceFirst("src/main/resources", "").dropWhile(_ == '/')
+			val relativePath = path.toString.replaceFirst("src/main/resources/scale-4", "").dropWhile(_ == '/')
 			formatPostgresResult(relativePath, outputDir)
 		}
 		println("Everything formatted!")

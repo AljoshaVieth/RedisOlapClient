@@ -1,5 +1,5 @@
 package de.aljoshavieth.redisolapclient
-package clientapproach.q2_1
+package clientapproach.q2_3
 
 import clientapproach.RedisQuery
 
@@ -17,29 +17,29 @@ import scala.util.chaining.scalaUtilChainingOps
  * where lo_orderdate = d_datekey
  * and lo_partkey = p_partkey
  * and lo_suppkey = s_suppkey
- * and p_category = 'MFGR#12'
- * and s_region = 'AMERICA'
+ * and p_brand1 = 'MFGR#2221'
+ * and s_region = 'EUROPE'
  * group by d_year, p_brand1
  * order by d_year, p_brand1;
+ *
  */
-object Q2_1_client_a extends RedisQuery {
+object Q2_3_client_a extends RedisQuery {
 	override def execute(jedisPooled: JedisPooled): Unit = {
-		val partQuery: Query = new Query("@p_category:{MFGR\\#12}")
+		val partQuery: Query = new Query("@p_brand1:{MFGR\\#2221}")
 		val partDocuments = queryDocuments(jedisPooled, "part-index", partQuery, returnFields = List("p_brand1", "p_partkey"))
-		//println("Queried: " + partDocuments.length + " partDocuments");
 
-		val supplierQuery: Query = new Query("@s_region:{AMERICA}")
+		val supplierQuery: Query = new Query("@s_region:{EUROPE}")
 		val supplierDocuments = queryDocuments(jedisPooled, "supplier-index", supplierQuery, returnFields = List("s_suppkey"))
-		//println("Queried: " + supplierDocuments.length + " supplierDocuments");
 
 
 		val dateDocuments: List[Document] = queryDocuments(jedisPooled, "date-index", returnFields = List("d_year", "d_datekey"))
-		//println("Queried: " + dateDocuments.length + " dateDocuments");
 
 
 		val lineorderDocuments = queryDocuments(jedisPooled, "lineorder-index", returnFields = List("lo_revenue", "lo_orderdate", "lo_partkey", "lo_suppkey"))
-		//println("Queried: " + lineorderDocuments.length + " lineoderDocuments");
 
+		println("numPartx: " + partDocuments.size)
+		println("numSup: " + supplierDocuments.size)
+		println("numLine: " + lineorderDocuments.size)
 
 		val relevantLineOrderDocuments = lineorderDocuments
 			.pipe(filterDocuments(_, "lo_suppkey", supplierDocuments, "s_suppkey"))
@@ -50,8 +50,6 @@ object Q2_1_client_a extends RedisQuery {
 
 
 		val result: List[((String, String), Long)] = grouped.view.mapValues(docs => docs.map(_.getString("lo_revenue").toLong).sum).toList.sortBy(_._1)
-		//println(result.head)
-		//println(" ")
 		println("    sum   |    d_year  |    p_brand1    ")
 
 		result.foreach(x => println(x._2 + " |    " + x._1._1 + "    |    " + x._1._2))
