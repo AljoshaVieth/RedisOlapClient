@@ -37,9 +37,6 @@ object Q2_3_client_a extends RedisQuery {
 
 		val lineorderDocuments = queryDocuments(jedisPooled, "lineorder-index", returnFields = List("lo_revenue", "lo_orderdate", "lo_partkey", "lo_suppkey"))
 
-		println("numPartx: " + partDocuments.size)
-		println("numSup: " + supplierDocuments.size)
-		println("numLine: " + lineorderDocuments.size)
 
 		val relevantLineOrderDocuments = lineorderDocuments
 			.pipe(filterDocuments(_, "lo_suppkey", supplierDocuments, "s_suppkey"))
