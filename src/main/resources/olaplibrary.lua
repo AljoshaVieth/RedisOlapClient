@@ -109,6 +109,27 @@ local function runQ1_2_a(keys, args)
     return "revenue: " .. revenue
 end
 
+local function runQ1_3_a(keys, args)
+    -- Apply additional query filters based on provided arguments.
+    local queryFilter = queryFilterCriteria(keys, args)
+    -- Search in 'lineorder-index' with specified discount & quantity ranges and the queryFilter
+    local query_result = redis.call("FT.SEARCH", "lineorder-index", "@lo_discount:[5 7] @lo_quantity:[26 35]" ..queryFilter, "LIMIT", 0, 2147483647)
+    local flattened = flattenTable(query_result)
+    local currentLoExtendedPrice = 0
+    local currentLoDiscount = 0
+    local revenue = 0
+    -- Calculate revenue by iterating over flattened results.
+    for i = 1, #flattened do
+        if flattened[i] == "lo_extendedprice" then
+            currentLoExtendedPrice = flattened[i + 1]
+        elseif flattened[i] == "lo_discount" then
+            currentLoDiscount = flattened[i + 1]
+            revenue = revenue + currentLoDiscount * currentLoExtendedPrice
+        end
+    end
+    return "revenue: " .. revenue
+end
+
 local function runQ1_1_b(keys, args)
     local queriedDates = redis.call("FT.SEARCH", "date-index", "@d_year:[1993 1993]", "RETURN", 1, "d_datekey", "LIMIT", 0, 2147483647)
     table.remove(queriedDates, 1) -- removing the count of results from the table
@@ -224,13 +245,15 @@ redis.register_function('querySpecificDocuments', querySpecificDocuments)
 redis.register_function('queryDocuments', queryDocuments)
 redis.register_function('queryFilterCriteria', queryFilterCriteria)
 redis.register_function('runQ1_1_a', runQ1_1_a)
-redis.register_function('runQ1_1_b', runQ1_1_b)
-redis.register_function('runQ1_1_c', runQ1_1_c)
-redis.register_function('runQ1_1_d', runQ1_1_d)
+-- redis.register_function('runQ1_1_b', runQ1_1_b)
+-- redis.register_function('runQ1_1_c', runQ1_1_c)
+-- redis.register_function('runQ1_1_d', runQ1_1_d)
 redis.register_function('runQ1_2_a', runQ1_2_a)
-redis.register_function('runQ1_2_b', runQ1_2_b)
-redis.register_function('runQ1_2_c', runQ1_2_c)
-redis.register_function('runQ1_2_d', runQ1_2_d)
+-- redis.register_function('runQ1_2_b', runQ1_2_b)
+-- redis.register_function('runQ1_2_c', runQ1_2_c)
+-- redis.register_function('runQ1_2_d', runQ1_2_d)
+redis.register_function('runQ1_3_a', runQ1_3_a)
+
 
 
 

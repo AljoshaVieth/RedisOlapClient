@@ -56,8 +56,8 @@ object Q2_1_client_b extends RedisQuery {
 
 		val completeQuery = validPartKeysQuery + " " +  validSuppkeysQuery + " " + validDateKeysQuery
 
-		val relevantLineorderDocuments = queryDocuments(jedisPooled, "lineorder-index", query = Query(completeQuery), returnFields = List("lo_revenue", "lo_orderdate", "lo_partkey", "lo_suppkey"))
 
+		val relevantLineorderDocuments = queryDocuments(jedisPooled, "lineorder-index", query = Query(completeQuery), returnFields = List("lo_revenue", "lo_orderdate", "lo_partkey", "lo_suppkey"))
 
 		// Replace lo_partkey and lo_orderdate with proper p_brand1 and d_year
 		val updatedLineorderDocuments = GroupByHelper.exchangeDocumentProperties(partDocuments, dateDocuments, relevantLineorderDocuments)

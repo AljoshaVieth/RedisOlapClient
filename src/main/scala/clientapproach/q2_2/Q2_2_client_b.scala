@@ -56,8 +56,11 @@ object Q2_2_client_b extends RedisQuery {
 		val validDateKeysQuery = validDatekeys.mkString(" | ")
 
 		val completeQuery = validPartKeysQuery + " " +  validSuppkeysQuery + " " + validDateKeysQuery
+		
+
 
 		val relevantLineorderDocuments = queryDocuments(jedisPooled, "lineorder-index", query = Query(completeQuery), returnFields = List("lo_revenue", "lo_orderdate", "lo_partkey", "lo_suppkey"))
+
 
 
 		// Replace lo_partkey and lo_orderdate with proper p_brand1 and d_year
