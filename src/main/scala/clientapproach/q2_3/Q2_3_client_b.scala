@@ -61,7 +61,7 @@ object Q2_3_client_b extends RedisQuery {
 		val relevantLineorderDocuments = queryDocuments(jedisPooled, "lineorder-index", query = Query(completeQuery), returnFields = List("lo_revenue", "lo_orderdate", "lo_partkey", "lo_suppkey"))
 
 		// Replace lo_partkey and lo_orderdate with proper p_brand1 and d_year
-		val updatedLineorderDocuments = GroupByHelper.updateDocuments(partDocuments, dateDocuments, relevantLineorderDocuments)
+		val updatedLineorderDocuments = GroupByHelper.exchangeDocumentProperties(partDocuments, dateDocuments, relevantLineorderDocuments)
 		
 		val grouped: Map[(String, String), List[Document]] = updatedLineorderDocuments.groupBy(doc => (doc.getString("d_year"), doc.getString("p_brand1")))
 

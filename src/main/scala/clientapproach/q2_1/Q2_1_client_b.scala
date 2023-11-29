@@ -30,11 +30,10 @@ object Q2_1_client_b extends RedisQuery {
 
 		val validPartKeys = partDocuments.flatMap { doc =>
 			val validSuppKeys = "@lo_partkey:[" + doc.getString("p_partkey") + " " + doc.getString("p_partkey") + "]"
-			List(validSuppKeys)// return a List with the dateRange string
+			List(validSuppKeys)
 		}
 
 		val validPartKeysQuery = validPartKeys.mkString(" | ")
-
 
 		val supplierQuery: Query = new Query("@s_region:{AMERICA}")
 		val supplierDocuments: List[Document] = queryDocuments(jedisPooled, "supplier-index", supplierQuery, returnFields = List("s_suppkey"))
@@ -48,10 +47,9 @@ object Q2_1_client_b extends RedisQuery {
 
 		val dateDocuments: List[Document] = queryDocuments(jedisPooled, "date-index", returnFields = List("d_year", "d_datekey"))
 
-
 		val validDatekeys = dateDocuments.flatMap { doc =>
 			val validDateRanges = "@lo_orderdate:[" + doc.getString("d_datekey") + " " + doc.getString("d_datekey") + "]"
-			List(validDateRanges) // return a List with the dateRange string
+			List(validDateRanges)
 		}
 
 		val validDateKeysQuery = validDatekeys.mkString(" | ")
@@ -60,16 +58,15 @@ object Q2_1_client_b extends RedisQuery {
 
 		val relevantLineorderDocuments = queryDocuments(jedisPooled, "lineorder-index", query = Query(completeQuery), returnFields = List("lo_revenue", "lo_orderdate", "lo_partkey", "lo_suppkey"))
 
-		
+
 		// Replace lo_partkey and lo_orderdate with proper p_brand1 and d_year
-		val updatedLineorderDocuments = GroupByHelper.updateDocuments(partDocuments, dateDocuments, relevantLineorderDocuments)
-		
+		val updatedLineorderDocuments = GroupByHelper.exchangeDocumentProperties(partDocuments, dateDocuments, relevantLineorderDocuments)
+
 		val grouped: Map[(String, String), List[Document]] = updatedLineorderDocuments.groupBy(doc => (doc.getString("d_year"), doc.getString("p_brand1")))
 
 
 		val result: List[((String, String), Long)] = grouped.view.mapValues(docs => docs.map(_.getString("lo_revenue").toLong).sum).toList.sortBy(_._1)
 		println("    sum   |    d_year  |    p_brand1    ")
-
 		result.foreach(x => println(x._2 + " |    " + x._1._1 + "    |    " + x._1._2))
 		println(result.size + " results")
 	}

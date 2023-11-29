@@ -26,20 +26,13 @@ object Q2_1_client_a extends RedisQuery {
 	override def execute(jedisPooled: JedisPooled): Unit = {
 		val partQuery: Query = new Query("@p_category:{MFGR\\#12}")
 		val partDocuments = queryDocuments(jedisPooled, "part-index", partQuery, returnFields = List("p_brand1", "p_partkey"))
-		//println("Queried: " + partDocuments.length + " partDocuments");
 
 		val supplierQuery: Query = new Query("@s_region:{AMERICA}")
 		val supplierDocuments = queryDocuments(jedisPooled, "supplier-index", supplierQuery, returnFields = List("s_suppkey"))
-		//println("Queried: " + supplierDocuments.length + " supplierDocuments");
-
 
 		val dateDocuments: List[Document] = queryDocuments(jedisPooled, "date-index", returnFields = List("d_year", "d_datekey"))
-		//println("Queried: " + dateDocuments.length + " dateDocuments");
-
 
 		val lineorderDocuments = queryDocuments(jedisPooled, "lineorder-index", returnFields = List("lo_revenue", "lo_orderdate", "lo_partkey", "lo_suppkey"))
-		//println("Queried: " + lineorderDocuments.length + " lineoderDocuments");
-
 
 		val relevantLineOrderDocuments = lineorderDocuments
 			.pipe(filterDocuments(_, "lo_suppkey", supplierDocuments, "s_suppkey"))
@@ -48,12 +41,9 @@ object Q2_1_client_a extends RedisQuery {
 
 		val grouped: Map[(String, String), List[Document]] = relevantLineOrderDocuments.groupBy(doc => (doc.getString("d_year"), doc.getString("p_brand1")))
 
-
 		val result: List[((String, String), Long)] = grouped.view.mapValues(docs => docs.map(_.getString("lo_revenue").toLong).sum).toList.sortBy(_._1)
-		//println(result.head)
-		//println(" ")
-		println("    sum   |    d_year  |    p_brand1    ")
 
+		println("    sum   |    d_year  |    p_brand1    ")
 		result.foreach(x => println(x._2 + " |    " + x._1._1 + "    |    " + x._1._2))
 		println(result.size + " results")
 	}

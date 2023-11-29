@@ -13,7 +13,7 @@ object GroupByHelper {
 	 * In order to make the groupby work, the following code replaces the properties lo_partkey and lo_orderdate
 	 * of relevantLineorderDocuments with the proper properties p_brand1 and d_year from partDocuments and dateDocuments
 	 */
-	def updateDocuments(partDocuments: List[Document], dateDocuments: List[Document], relevantLineorderDocuments: List[Document]): List[Document] = {
+	def exchangeDocumentProperties(partDocuments: List[Document], dateDocuments: List[Document], relevantLineorderDocuments: List[Document]): List[Document] = {
 		// Creating mappings from part key to brand and from order date to year
 		val partKeyToBrand = partDocuments.map(doc => doc.getString("p_partkey") -> doc.getString("p_brand1")).toMap
 		val dateKeyToYear = dateDocuments.map(doc => doc.getString("d_datekey") -> doc.getString("d_year")).toMap

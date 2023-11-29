@@ -139,13 +139,9 @@ object Main {
 		printResultIsCorrect(Q4_3_denormalized.isCorrect(formattedResult))
 	}
 
-	private def printResultIsCorrect(boolean: Boolean): Unit = {
-		if (boolean) {
-			println("Result is correct!")
-		} else {
-			println("Result is incorrect!!!")
-		}
-	}
+	private def printResultIsCorrect(result: Boolean): Unit =
+		println(if (result) "Result is correct!" else "Result is incorrect!!!")
+
 	private def runServerApproachQueries(): Unit = {
 		println("\n----------------------------------------")
 		println("Running server-based queries ...")

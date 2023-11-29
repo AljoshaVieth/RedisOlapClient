@@ -53,11 +53,6 @@ abstract class RedisQuery {
 	}
 
 	protected def filterAndJoinDocuments(documentsToFilter: List[Document], filterField1: String, documentsToFilterWith: List[Document], filterField2: String, fieldsToJoin: List[String]): List[Document] = {
-		//val filterValues = documentsToFilterWith.map(_.getString(filterField2)).toSet // Converting to set to enable faster comparison due to constant-time lookups
-		
-		//val documentsToFilterWithMap = documentsToFilterWith.groupBy(_.getString(filterField2)).view.mapValues(_.head)
-		//documentsToFilter.filter(doc => filterValues.contains(doc.getString(filterField1)))
-		
 		val filterMap = documentsToFilterWith.map(doc => (doc.getString(filterField2), doc)).toMap
 		documentsToFilter
 			.filter(doc => filterMap.contains(doc.getString(filterField1)))
@@ -65,6 +60,5 @@ abstract class RedisQuery {
 				val fieldsToJoinValues = fieldsToJoin.map(filterMap(doc.getString(filterField1)).getString)
 				fieldsToJoin.zip(fieldsToJoinValues).foldLeft(doc)((d,p) => d.set(p._1, p._2))
 			})
-		
 	}
 }
