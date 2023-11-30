@@ -6,7 +6,12 @@ import redis.clients.jedis.params.ScanParams
 import redis.clients.jedis.resps.ScanResult
 import scala.jdk.CollectionConverters.*
 
-
+/**
+ * This class acts as a base class for  an alternative approach.
+ * It operates without RediSearch.
+ * For this, the data must be pre-calculated accordingly.
+ * This approach has proven impractical and was not pursued further.
+ */
 abstract class RedisScanQuery {
 	def execute(jedis: Jedis): Unit
 

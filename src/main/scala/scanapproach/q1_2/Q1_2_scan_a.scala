@@ -10,6 +10,12 @@ import redis.clients.jedis.{Jedis, Pipeline}
 import java.util
 import scala.jdk.CollectionConverters.*
 
+/**
+ * This object tests an alternative approach.
+ * It operates without RediSearch.
+ * For this, the data must be pre-calculated accordingly.
+ * This approach has proven impractical and was not pursued further.
+ */
 object Q1_2_scan_a extends RedisScanQuery {
 	/**
 	 * Original Q1.2 Query in SQL
