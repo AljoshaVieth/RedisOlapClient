@@ -1,0 +1,5 @@
+   c_city   |   s_city   | d_year | revenue
+------------+------------+--------+---------
+ UNITED KI1 | UNITED KI1 |   1997 | 5908029
+ UNITED KI5 | UNITED KI1 |   1997 | 1417432
+ UNITED KI5 | UNITED KI5 |   1997 |  475200
