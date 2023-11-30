@@ -5,15 +5,16 @@ import clientapproach.q1_1.*
 import clientapproach.q1_2.*
 import clientapproach.q1_3.*
 import clientapproach.q2_1.{Q2_1_client_a, Q2_1_client_b}
-import clientapproach.q2_2.Q2_2_client_a
+import clientapproach.q2_2.{Q2_2_client_a, Q2_2_client_b}
 import clientapproach.q2_3.{Q2_3_client_a, Q2_3_client_b}
 import denormalizedapproach.*
-import scan_vs_search.ScanVsSearch_Q1_scan
 import scanapproach.q1_1.Q1_1_scan_a
 import scanapproach.q1_2.Q1_2_scan_a
 import serverapproach.LuaScriptLoader
 import serverapproach.q1_1.{Q1_1_server_a, Q1_1_server_b, Q1_1_server_c, Q1_1_server_d}
 import serverapproach.q1_2.{Q1_2_server_a, Q1_2_server_b, Q1_2_server_c, Q1_2_server_d}
+import serverapproach.q1_3.Q1_3_server_a
+import serverapproach.q2_1.Q2_1_server_a
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig
 import redis.clients.jedis.search.SearchProtocol.SearchCommand
@@ -38,8 +39,8 @@ object Main {
 	def main(args: Array[String]): Unit = {
 		configureRedis()
 		//runDenormalizedApproachQueries()
-		runClientApproachQueries()
-		//runServerApproachQueries()
+		//runClientApproachQueries()
+		runServerApproachQueries()
 		//runScanApproachQueries()
 		//runScanVsSearchQueries()
 
@@ -148,46 +149,50 @@ object Main {
 		println("........................................")
 
 
-
 		// Q 1.1
 		println("\n    Q1.1\n")
 		println("Running Q1.1 server_a ...")
 		println("Executed in: " + calculateExecutionTime(Q1_1_server_a.execute(jedisPooled)) + "ms\n")
-
-		println("Running Q1.1 server_b ...")
-		println("Executed in: " + calculateExecutionTime(Q1_1_server_b.execute(jedisPooled)) + "ms\n")
-
-		/*
-		println("Running Q1_1 server_c ...")
-		println("Executed in: " + calculateExecutionTime(Q1_1_server_c.execute(jedisPooled)) + "ms\n")
-
-		println("Running Q1.1 server_d ...")
-		println("Executed in: " + calculateExecutionTime(Q1_1_server_d.execute(jedisPooled)) + "ms\n")
-		*/
 
 		// Q 1.2
 		println("\n    Q1.2\n")
 		println("Running Q1.2 server_a ...")
 		println("Executed in: " + calculateExecutionTime(Q1_2_server_a.execute(jedisPooled)) + "ms\n")
 
+		// Q 1.3
+		println("\n    Q1.3\n")
+		println("Running Q1.3 server_a ...")
+		println("Executed in: " + calculateExecutionTime(Q1_3_server_a.execute(jedisPooled)) + "ms\n")
+
+		// The following code is not functional since the corresponding lua code is not working or was not developed further
+		// due to this approach being declared as to slow to compete
+		/*
+		// Q 2.1
+		println("\n    Q2.1\n")
+		println("Running Q2.1 server_a ...")
+		println("Executed in: " + calculateExecutionTime(Q2_1_server_a.execute(jedisPooled)) + "ms\n")
+		*/
+		/*
+		println("Running Q1.1 server_b ...")
+		println("Executed in: " + calculateExecutionTime(Q1_1_server_b.execute(jedisPooled)) + "ms\n")
+		*/
+		/*
+		println("Running Q1_1 server_c ...")
+		println("Executed in: " + calculateExecutionTime(Q1_1_server_c.execute(jedisPooled)) + "ms\n")
+		println("Running Q1.1 server_d ...")
+		println("Executed in: " + calculateExecutionTime(Q1_1_server_d.execute(jedisPooled)) + "ms\n")
+		*/
+		/*
 		println("Running Q1.2 server_b ...")
 		println("Executed in: " + calculateExecutionTime(Q1_2_server_b.execute(jedisPooled)) + "ms\n")
+		*/
 		/*
-
 		println("Running Q1.2 server_c ...")
 		println("Executed in: " + calculateExecutionTime(Q1_2_server_c.execute(jedisPooled)) + "ms\n")
 
 		println("Running Q1.2 server_d ...")
 		println("Executed in: " + calculateExecutionTime(Q1_2_server_d.execute(jedisPooled)) + "ms\n")
 		*/
-
-
-		//println("querySpecificDocuments: " + jedisPooled.fcall("querySpecificDocuments", List[String]().asJava, List[String]().asJava))
-		//println(jedisPooled.fcall("queryDocuments", List[String]().asJava, List("date-index", "@d_year:[1993 1993]").asJava))
-		//println(jedisPooled.fcall("queryFilterCriteria", List[String]().asJava, List("date-index", "@d_year:[1993 1993]", "d_datekey", "lo_orderdate").asJava)) //TODO this has to be wrapped
-		//println("Executed in: " + calculateExecutionTime(println(jedisPooled.fcall("runQ1_1", List[String]().asJava, List("date-index", "@d_year:[1993 1993]", "d_datekey", "lo_orderdate").asJava))) + "ns")
-		//println(jedisPooled.fcall("runQ1_1", List[String]().asJava, List("date-index", "@d_year:[1993 1993]", "d_datekey", "lo_orderdate").asJava)) //TODO this has to be wrapped
-
 	}
 
 	private def runClientApproachQueries(): Unit = {
@@ -195,76 +200,70 @@ object Main {
 		println("Running client-based queries ...")
 		println("........................................")
 
-
 		// Q 1.1
 		println("\n    Q1.1\n")
 		println("Running Q1.1 client_a ...")
 		println("Executed in: " + calculateExecutionTime(Q1_1_client_a.execute(jedisPooled)) + "ms\n")
 
-		/*
 		println("Running Q1.1 client_b ...")
 		println("Executed in: " + calculateExecutionTime(Q1_1_client_b.execute(jedisPooled)) + "ms\n")
-		*/
+
 		println("Running Q1.1 client_c ...")
 		println("Executed in: " + calculateExecutionTime(Q1_1_client_c.execute(jedisPooled)) + "ms\n")
 
-		/*
-		//println("Running Q1.1 client_d_alternative ...")
-		//println("Executed in: " + calculateExecutionTime(Q1_1_client_d_alternative.execute(jedisPooled)) + "ms\n")
+
+		println("Running Q1.1 client_d_alternative ...")
+		println("Executed in: " + calculateExecutionTime(Q1_1_client_d_alternative.execute(jedisPooled)) + "ms\n")
 
 		println("Running Q1.1 client_d ...")
 		println("Executed in: " + calculateExecutionTime(Q1_1_client_d.execute(jedisPooled)) + "ms\n")
 
 		println("Running Q1.1 client_e ...")
 		println("Executed in: " + calculateExecutionTime(Q1_1_client_e.execute(jedisPooled)) + "ms\n")
-*/
+
 
 		// Q 1.2
 		println("\n    Q1.2\n")
 		println("Running Q1.2 client_a ...")
 		println("Executed in: " + calculateExecutionTime(Q1_2_client_a.execute(jedisPooled)) + "ms\n")
 
-		/*
+
 		println("Running Q1.2 client_b ...")
 		println("Executed in: " + calculateExecutionTime(Q1_2_client_b.execute(jedisPooled)) + "ms\n")
-*/
+
 		println("Running Q1.2 client_c ...")
 		println("Executed in: " + calculateExecutionTime(Q1_2_client_c.execute(jedisPooled)) + "ms\n")
-		/*
-				//println("Running Q1.2 client_d_alternative ...")
-				//println("Executed in: " + calculateExecutionTime(Q1_2_client_d_alternative.execute(jedisPooled)) + "ms\n")
 
-				println("Running Q1.2 client_d ...")
-				println("Executed in: " + calculateExecutionTime(Q1_2_client_d.execute(jedisPooled)) + "ms\n")
+		println("Running Q1.2 client_d_alternative ...")
+		println("Executed in: " + calculateExecutionTime(Q1_2_client_d_alternative.execute(jedisPooled)) + "ms\n")
 
-				println("Running Q1.2 client_e ...")
-				println("Executed in: " + calculateExecutionTime(Q1_2_client_e.execute(jedisPooled)) + "ms\n")
+		println("Running Q1.2 client_d ...")
+		println("Executed in: " + calculateExecutionTime(Q1_2_client_d.execute(jedisPooled)) + "ms\n")
 
+		println("Running Q1.2 client_e ...")
+		println("Executed in: " + calculateExecutionTime(Q1_2_client_e.execute(jedisPooled)) + "ms\n")
 
-		*/
 
 		// Q 1.3
 		println("\n    Q1.3\n")
 		println("Running Q1.3 client_a ...")
 		println("Executed in: " + calculateExecutionTime(Q1_3_client_a.execute(jedisPooled)) + "ms\n")
-		/*
-				println("Running Q1.3 client_b ...")
-				println("Executed in: " + calculateExecutionTime(Q1_3_client_b.execute(jedisPooled)) + "ms\n")
-		*/
+
+		println("Running Q1.3 client_b ...")
+		println("Executed in: " + calculateExecutionTime(Q1_3_client_b.execute(jedisPooled)) + "ms\n")
+
 		println("Running Q1.3 client_c ...")
 		println("Executed in: " + calculateExecutionTime(Q1_3_client_c.execute(jedisPooled)) + "ms\n")
-		/*
-				//println("Running Q1.3 client_d_alternative ...")
-				//println("Executed in: " + calculateExecutionTime(Q1_3_client_d_alternative.execute(jedisPooled)) + "ms\n")
 
-				println("Running Q1.3 client_d ...")
-				println("Executed in: " + calculateExecutionTime(Q1_3_client_d.execute(jedisPooled)) + "ms\n")
+		println("Running Q1.3 client_d_alternative ...")
+		println("Executed in: " + calculateExecutionTime(Q1_3_client_d_alternative.execute(jedisPooled)) + "ms\n")
 
-				println("Running Q1.3 client_e ...")
-				println("Executed in: " + calculateExecutionTime(Q1_3_client_e.execute(jedisPooled)) + "ms\n")
+		println("Running Q1.3 client_d ...")
+		println("Executed in: " + calculateExecutionTime(Q1_3_client_d.execute(jedisPooled)) + "ms\n")
 
+		println("Running Q1.3 client_e ...")
+		println("Executed in: " + calculateExecutionTime(Q1_3_client_e.execute(jedisPooled)) + "ms\n")
 
-		*/
 
 
 		// Q 2.1
@@ -277,18 +276,16 @@ object Main {
 		println("Running Q2.1_b ...")
 		println("Executed in: " + calculateExecutionTime(Q2_1_client_b.execute(jedisPooled)) + "ms")
 
-
-
-
+		// Q 2.2
 		println("\n----------------------------------------")
 		println("Running Q2.2_a ...")
 		println("Executed in: " + calculateExecutionTime(Q2_2_client_a.execute(jedisPooled)) + "ms\n")
 
 		println("\n----------------------------------------")
 		println("Running Q2.2_b ...")
-		println("Executed in: " + calculateExecutionTime(Q2_2_client_a.execute(jedisPooled)) + "ms\n")
+		println("Executed in: " + calculateExecutionTime(Q2_2_client_b.execute(jedisPooled)) + "ms\n")
 
-
+		// Q 2.5
 		println("\n----------------------------------------")
 		println("Running Q2.3_a ...")
 		println("Executed in: " + calculateExecutionTime(Q2_3_client_a.execute(jedisPooled)) + "ms\n")
@@ -297,54 +294,38 @@ object Main {
 		println("Running Q2.3_b ...")
 		println("Executed in: " + calculateExecutionTime(Q2_3_client_b.execute(jedisPooled)) + "ms\n")
 
-
-
 	}
 
-	private def runScanVsSearchQueries(): Unit = {
-		val jedis = new Jedis("localhost", 6379)
-		jedis.select(1) // Set the database index
-		println("\n----------------------------------------")
-		println("Running scan-vs-search queries ...")
-		println("........................................")
-
-
-
-		println("Running Q1_scan ...")
-		println("Executed in: " + calculateExecutionTime(ScanVsSearch_Q1_scan.execute(jedisPooled, jedis)) + "ms")
-
-
-	}
-
+	// This approach has been abandoned since it needs pre-calculated data
 	private def runScanApproachQueries(): Unit = {
 		val jedis = new Jedis("localhost", 6379)
 		jedis.select(1)
 		jedis.getClient.setTimeoutInfinite()
-		// Q 1.1
-		println("\n    Q1.1_b\n")
-		println("Running Q1.1 scan_b ...")
-		println("Executed in: " + calculateExecutionTime(Q1_1_scan_a.execute(jedis)) + "ms\n")
 
-/*
+
 		println("\n----------------------------------------")
 		println("Running scan-based queries ...")
 		println("........................................")
 
-
-
-		// Q 1.1
+		// Q 1.1 a
 		println("\n    Q1.1\n")
 		println("Running Q1.1 scan_a ...")
+		println("Executed in: " + calculateExecutionTime(Q1_1_scan_a.execute(jedis)) + "ms\n")
+
+		// Q 1.1 b
+		println("\n    Q1.1_b\n")
+		println("Running Q1.1 scan_b ...")
 		println("Executed in: " + calculateExecutionTime(Q1_1_scan_a.execute(jedis)) + "ms\n")
 
 		// Q 1.2
 		println("\n    Q1.2\n")
 		println("Running Q1.2 scan_a ...")
 		println("Executed in: " + calculateExecutionTime(Q1_2_scan_a.execute(jedis)) + "ms\n")
-
-*/
 	}
 
+	/**
+	 * Configure redis by deactivating limits and timeouts as well as loading the lua lib
+	 */
 	private def configureRedis(): Unit = {
 		println("Configuring Redis...")
 		println(jedisPooled.functionLoadReplace(LuaScriptLoader.loadLuaScript("src/main/resources/olaplibrary.lua")))
