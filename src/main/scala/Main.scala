@@ -182,6 +182,7 @@ object Main {
 		println("Running Q1.1 server_d ...")
 		println("Executed in: " + calculateExecutionTime(Q1_1_server_d.execute(jedisPooled)) + "ms\n")
 		*/
+    
 		/*
 		println("Running Q1.2 server_b ...")
 		println("Executed in: " + calculateExecutionTime(Q1_2_server_b.execute(jedisPooled)) + "ms\n")

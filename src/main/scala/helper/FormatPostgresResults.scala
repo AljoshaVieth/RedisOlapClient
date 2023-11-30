@@ -1,4 +1,5 @@
 package de.aljoshavieth.redisolapclient
+package helper
 
 import java.io.PrintWriter
 import java.nio.file.{Files, Paths}
