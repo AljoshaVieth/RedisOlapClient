@@ -12,7 +12,8 @@ local function flattenTable(tbl)
             for _, nestedValue in ipairs(value) do
                 flatten(nestedValue)
             end
-        else  -- If the value is not a table, store it in the flattened table
+        else
+            -- If the value is not a table, store it in the flattened table
             flattened[index] = value
             index = index + 1
         end
